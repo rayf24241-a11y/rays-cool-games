@@ -1,197 +1,270 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Candy Click</title>
-  <link rel="stylesheet" href="style.css">
-  <!-- Inline favicon as SVG data URI - rusty bucket -->
-  <link rel="icon" type="image/svg+xml" href="CandyClicker/images/bucket_stage1.svg">
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>RAYS CREAT3R</title>
+<link rel="stylesheet" href="style.css">
+<link rel="icon" type="image/svg+xml" href="CandyClicker/images/bucket_stage1.svg">
+<script src="auth.js"></script>
 </head>
 <body>
 
-  <!-- SETUP SCREEN -->
-  <div id="setupScreen" class="screen">
-    <div class="setup-box">
-      <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:6px;">
-        <img src="CandyClicker/images/bucket_stage1.svg" style="width:48px;height:48px;filter:drop-shadow(0 0 10px rgba(255,120,0,.5));">
-        <h1 style="font-family:'Fredoka One',cursive;color:#ffd700;font-size:2.2em;">Candy Click</h1>
-      </div>
-      <p>Enter your name to get started!</p>
-      <input type="text" id="setupName" placeholder="Your name..." maxlength="20" autocomplete="off">
-      <button id="setupBtn" class="btn-primary">Let's Go! 🍬</button>
-      <div class="setup-divider">or</div>
-      <button id="showLoginBtn" class="btn-secondary">🔑 Log In With Key</button>
+<!-- SETUP -->
+<div id="setupScreen" class="screen hidden">
+  <div class="setup-box">
+    <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:8px;">
+      <span style="font-size:2em">🎮</span>
+      <h1 style="font-family:'Fredoka One',cursive;background:linear-gradient(135deg,#fff 30%,#c084fc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-size:2em;">RAYS CREAT3R</h1>
     </div>
+    <p>Create games. Publish them. Let the world play.</p>
+    <input type="text" id="setupName" placeholder="Choose a username..." maxlength="20" autocomplete="off">
+    <button id="setupBtn" class="btn-primary">Create Account 🚀</button>
+    <div class="setup-divider">already have an account?</div>
+    <button id="showLoginBtn" class="btn-secondary">🔑 Log In With Key</button>
   </div>
+</div>
 
-  <!-- LOGIN SCREEN -->
-  <div id="loginScreen" class="screen hidden">
-    <div class="setup-box">
-      <h1 style="font-family:'Fredoka One',cursive;color:#ffd700;font-size:2em;margin-bottom:8px;">🔑 Log In</h1>
-      <p>Enter your name and account key to restore your progress.</p>
-      <input type="text" id="loginName" placeholder="Your name..." maxlength="20" autocomplete="off">
-      <textarea id="loginKey" placeholder="Paste your account key here..." rows="3"></textarea>
-      <button id="loginBtn" class="btn-primary">Log In</button>
-      <button id="backToSetupBtn" class="btn-secondary" style="margin-top:8px;">← Back</button>
-      <p id="loginError" class="error-msg hidden"></p>
+<!-- LOGIN -->
+<div id="loginScreen" class="screen hidden">
+  <div class="setup-box">
+    <h1 style="font-family:'Fredoka One',cursive;color:#c084fc;font-size:1.8em;margin-bottom:8px;">🔑 Log In</h1>
+    <p>Enter your username and paste your account key.</p>
+    <input type="text" id="loginName" placeholder="Your username..." maxlength="20" autocomplete="off">
+    <textarea id="loginKey" placeholder="Paste your account key here..." rows="4" style="resize:none;"></textarea>
+    <button id="loginBtn" class="btn-primary">Log In</button>
+    <button id="backToSetupBtn" class="btn-secondary">← Back</button>
+    <p id="loginError" class="error-msg hidden"></p>
+  </div>
+</div>
+
+<!-- HOME -->
+<div id="homeScreen" class="screen hidden">
+  <div id="topBar">
+    <div class="logo-wrap">
+      <span class="logo-icon">🎮</span>
+      <h1 class="logo"><span>RAYS</span> <b>CREAT3R</b></h1>
     </div>
-  </div>
-
-  <!-- HOME SCREEN -->
-  <div id="homeScreen" class="screen hidden">
-
-    <!-- Top Bar -->
-    <div id="topBar">
-      <div class="logo-wrap">
-        <img class="logo-bucket" src="CandyClicker/images/bucket_stage1.svg" alt="">
-        <h1 class="logo">Candy Click</h1>
-      </div>
+    <div id="topBarRight">
+      <a href="creator/index.html" class="create-btn">+ Create</a>
+      <a href="PlayerData/viewer.html" class="create-btn" style="background:rgba(255,255,255,.07);border:1px solid #30363d;">🗂️ My Data</a>
       <div id="profileBtn"><div id="profileAvatar"></div></div>
     </div>
+  </div>
 
-    <!-- Profile Dropdown -->
-    <div id="profileDropdown" class="hidden">
-      <div class="profile-header">
-        <div id="dropdownAvatar" class="avatar-large"></div>
-        <div class="profile-name-wrap">
-          <h3 id="profileName"></h3>
-          <p class="profile-label">Player</p>
-        </div>
-      </div>
-      <div class="profile-actions">
-        <button id="genKeyBtn" class="btn-profile">🔑 Generate Key</button>
-        <button id="logoutBtn" class="btn-profile btn-danger">🚪 Log Out</button>
-      </div>
-      <div id="keyDisplay" class="hidden">
-        <p class="key-label">Your Account Key:</p>
-        <textarea id="keyText" readonly rows="3"></textarea>
-        <button id="copyKeyBtn" class="btn-small">📋 Copy</button>
-        <p class="key-hint">Save this! Use it with your name to log in anywhere.</p>
+  <div id="profileDropdown" class="hidden">
+    <div class="profile-header">
+      <div id="dropdownAvatar" class="avatar-large"></div>
+      <div class="profile-name-wrap">
+        <h3 id="profileName"></h3>
+        <p class="profile-label" id="visitLabel">Creator</p>
       </div>
     </div>
-
-    <!-- Featured Banner -->
-    <div id="featuredBanner">
-      <div class="banner-particles">
-        <span></span><span></span><span></span><span></span><span></span>
-      </div>
-      <img class="banner-bucket" src="CandyClicker/images/bucket_stage1.svg" alt="">
-      <div class="banner-content">
-        <div class="version-tag">🍬 v1.1 Update — New Content!</div>
-        <div class="banner-title">Candy Clicker</div>
-        <div class="banner-sub">Click the bucket. Get candy. Evolve.</div>
-        <a href="CandyClicker/game.html" class="banner-play">▶ Play Now</a>
-      </div>
+    <div class="profile-actions">
+      <button id="genKeyBtn" class="btn-profile">🔑 Generate Save Key</button>
+      <a href="PlayerData/viewer.html" class="btn-profile" style="display:block;text-decoration:none;">🗂️ View Player Data</a>
+      <button id="logoutBtn" class="btn-profile btn-danger">🚪 Log Out</button>
     </div>
+    <div id="keyDisplay" class="hidden">
+      <p class="key-label">Your Account Key — save this!</p>
+      <textarea id="keyText" readonly rows="5"></textarea>
+      <button id="copyKeyBtn" class="btn-small">📋 Copy Key</button>
+      <p class="key-hint">This key holds your profile, all saves, and all projects. Paste it on any browser to restore everything.</p>
+    </div>
+  </div>
 
-    <!-- Game Grid -->
-    <div id="gameGrid">
-      <div class="grid-section-title">🕹️ All Games</div>
-      <div class="game-grid">
-
-        <a href="CandyClicker/game.html" class="game-tile" id="tileCandy">
-          <div class="tile-thumb tile-thumb-candy">
-            <img src="CandyClicker/images/bucket_stage1.svg" alt="">
-          </div>
-          <div class="tile-body">
-            <div class="tile-name-row">
-              <span class="tile-name">Candy Clicker</span>
-              <span class="tile-ver">v1.1</span>
-            </div>
-            <div class="tile-meta">
-              <span class="tile-players"><span class="player-dot"></span><span id="tilePlayerCount">1</span> playing</span>
-              <span class="tile-badge badge-hot">HOT</span>
-            </div>
-          </div>
-        </a>
-
-        <div class="game-tile coming-soon">
-          <div class="tile-thumb tile-thumb-soon">🔮</div>
-          <div class="tile-body">
-            <div class="tile-name-row"><span class="tile-name">Spell Clicker</span></div>
-            <div class="tile-meta"><span class="tile-players">Coming soon</span><span class="tile-badge badge-soon">SOON</span></div>
-          </div>
-        </div>
-
-        <div class="game-tile coming-soon">
-          <div class="tile-thumb tile-thumb-soon">🌟</div>
-          <div class="tile-body">
-            <div class="tile-name-row"><span class="tile-name">Star Clicker</span></div>
-            <div class="tile-meta"><span class="tile-players">Coming soon</span><span class="tile-badge badge-soon">SOON</span></div>
-          </div>
-        </div>
-
-        <div class="game-tile coming-soon">
-          <div class="tile-thumb tile-thumb-soon">💀</div>
-          <div class="tile-body">
-            <div class="tile-name-row"><span class="tile-name">Skull Farm</span></div>
-            <div class="tile-meta"><span class="tile-players">Coming soon</span><span class="tile-badge badge-soon">SOON</span></div>
-          </div>
-        </div>
-
+  <div id="heroBanner">
+    <div class="hero-orbs"><span></span><span></span><span></span></div>
+    <div class="hero-content">
+      <div class="hero-eyebrow">🎮 Game Creation Platform</div>
+      <div class="hero-title" id="heroTitle">Build. Publish.<br>Play.</div>
+      <div class="hero-sub" id="heroSub">Create your own games with visual code blocks and pixel art — no experience needed.</div>
+      <div class="hero-actions">
+        <a href="creator/index.html" class="hero-btn-primary">+ Create a Game</a>
+        <a href="creator/index.html" class="hero-btn-secondary">📚 My Library</a>
       </div>
     </div>
   </div>
 
-  <script>
-    var USER_KEY="candyclick_user",SAVE_KEY="candyClickerSave";
-    var setupScreen=document.getElementById("setupScreen"),loginScreen=document.getElementById("loginScreen"),homeScreen=document.getElementById("homeScreen");
-    var setupName=document.getElementById("setupName"),setupBtn=document.getElementById("setupBtn"),showLoginBtn=document.getElementById("showLoginBtn");
-    var loginName=document.getElementById("loginName"),loginKeyInput=document.getElementById("loginKey"),loginBtn=document.getElementById("loginBtn");
-    var backToSetupBtn=document.getElementById("backToSetupBtn"),loginError=document.getElementById("loginError");
-    var profileBtn=document.getElementById("profileBtn"),profileAvatar=document.getElementById("profileAvatar");
-    var profileDropdown=document.getElementById("profileDropdown"),dropdownAvatar=document.getElementById("dropdownAvatar");
-    var profileNameEl=document.getElementById("profileName"),genKeyBtn=document.getElementById("genKeyBtn");
-    var logoutBtn=document.getElementById("logoutBtn"),keyDisplay=document.getElementById("keyDisplay");
-    var keyText=document.getElementById("keyText"),copyKeyBtn=document.getElementById("copyKeyBtn");
+  <div id="gameGrid">
+    <div class="grid-label">🕹️ Official Games</div>
+    <div class="game-grid">
+      <a href="CandyClicker/game.html" class="game-tile">
+        <div class="tile-thumb tile-thumb-candy"><img src="CandyClicker/images/bucket_stage1.svg" alt="" id="homeBucket"></div>
+        <div class="tile-body">
+          <div class="tile-name-row"><span class="tile-name">Candy Clicker</span><span class="tile-ver">v1.1</span></div>
+          <div class="tile-meta"><span class="tile-author">by Raygoats</span><span class="tile-badge badge-official">OFFICIAL</span></div>
+        </div>
+      </a>
+    </div>
+    <div class="grid-label">🌟 Community Games</div>
+    <div class="game-grid" id="communityGrid">
+      <div class="empty-games" id="emptyGames">
+        <div class="empty-icon">🎮</div>
+        <p>No community games yet.<br><a href="creator/index.html" style="color:#a855f7;">Be the first!</a></p>
+      </div>
+    </div>
+  </div>
+</div>
 
-    function showScreen(s){[setupScreen,loginScreen,homeScreen].forEach(function(x){x.classList.add("hidden");});s.classList.remove("hidden");}
-    function getUser(){try{return JSON.parse(localStorage.getItem(USER_KEY));}catch(e){return null;}}
-    function saveUser(n){var u={name:n,created:Date.now()};localStorage.setItem(USER_KEY,JSON.stringify(u));return u;}
-    function setAvatar(el,n){
-      var l=(n||"?").charAt(0).toUpperCase();el.textContent=l;
-      var c=["#e74c3c","#e67e22","#f1c40f","#2ecc71","#1abc9c","#3498db","#9b59b6","#e91e63"];
-      el.style.background=c[l.charCodeAt(0)%c.length];}
-    function fmt(n){if(n>=1e9)return(n/1e9).toFixed(1)+"B";if(n>=1e6)return(n/1e6).toFixed(1)+"M";if(n>=1e3)return(n/1e3).toFixed(1)+"K";return Math.floor(n).toString();}
+<div id="welcomeToast" style="position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(120px);
+  background:#161b22;border:1px solid #a855f7;border-radius:12px;padding:14px 24px;
+  color:#c084fc;font-family:'Fredoka One',cursive;font-size:1.05em;z-index:300;
+  transition:transform .4s cubic-bezier(.34,1.56,.64,1);text-align:center;max-width:360px;">
+  <span id="welcomeMsg">Welcome back!</span>
+  <p id="welcomeSub" style="font-family:'Nunito',sans-serif;font-size:.75em;color:#8b949e;margin-top:4px;font-weight:600;"></p>
+</div>
 
-    function showHomeScreen(u){
-      showScreen(homeScreen);setAvatar(profileAvatar,u.name);setAvatar(dropdownAvatar,u.name);profileNameEl.textContent=u.name;
-      var raw=localStorage.getItem(SAVE_KEY);
-      if(raw){try{var s=JSON.parse(raw);var candy=s.candy||0;document.getElementById("tilePlayerCount").textContent=Math.min(Math.max(1,Math.floor(candy/800)+1),9999);}catch(e){}}
-    }
+<script>
+function setAv(el,name){var l=(name||"?").charAt(0).toUpperCase();el.textContent=l;el.style.background=RC.avatarColor(name);}
+function escH(s){return(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
 
-    function generateKey(){var u=getUser(),save=localStorage.getItem(SAVE_KEY)||"{}";return btoa(unescape(encodeURIComponent(JSON.stringify({user:u,save:JSON.parse(save)}))));}
-    function importKey(n,k){
-      try{
-        var p=JSON.parse(decodeURIComponent(escape(atob(k.trim()))));
-        if(!p.user||!p.save)return{ok:false,msg:"Invalid key format."};
-        p.user.name=n;localStorage.setItem(USER_KEY,JSON.stringify(p.user));
-        var s=p.save,cps=0,bCPS=[0.1,1,8,47,260,1400,7800,44000];
-        if(s.buildings)s.buildings.forEach(function(n,i){cps+=(bCPS[i]||0)*n;});
-        s.candyPerSecond=Math.round(cps*10)/10;localStorage.setItem(SAVE_KEY,JSON.stringify(s));
-        return{ok:true};
-      }catch(e){return{ok:false,msg:"Could not read that key."};}
-    }
+function showSetup(){document.getElementById("setupScreen").classList.remove("hidden");}
+function showLogin(){document.getElementById("loginScreen").classList.remove("hidden");document.getElementById("setupScreen").classList.add("hidden");}
+function hideAll(){["setupScreen","loginScreen","homeScreen"].forEach(function(id){document.getElementById(id).classList.add("hidden");});}
 
-    function init(){var u=getUser();if(u)showHomeScreen(u);else showScreen(setupScreen);}
+function showHome(user,isReturn){
+  hideAll();
+  document.getElementById("homeScreen").classList.remove("hidden");
+  setAv(document.getElementById("profileAvatar"),user.name);
+  setAv(document.getElementById("dropdownAvatar"),user.name);
+  document.getElementById("profileName").textContent=user.name;
+  // Session info in dropdown
+  var sess=RC.getSession();
+  if(sess){document.getElementById("visitLabel").textContent="Visit #"+(sess.visitCount||1);}
+  // Personalise hero if returning
+  if(isReturn){
+    document.getElementById("heroTitle").textContent="Welcome back,\n"+user.name+"!";
+    showWelcomeToast(user,sess);
+  }
+  // Show correct bucket stage from candy save
+  updateHomeBucket();
+  // Community games
+  loadCommunityGames();
+}
 
-    setupBtn.addEventListener("click",function(){var n=setupName.value.trim();if(!n){setupName.focus();return;}showHomeScreen(saveUser(n));});
-    setupName.addEventListener("keydown",function(e){if(e.key==="Enter")setupBtn.click();});
-    showLoginBtn.addEventListener("click",function(){showScreen(loginScreen);});
-    loginBtn.addEventListener("click",function(){
-      var n=loginName.value.trim(),k=loginKeyInput.value.trim();
-      if(!n){loginName.focus();return;}if(!k){loginKeyInput.focus();return;}
-      var r=importKey(n,k);if(r.ok)showHomeScreen(getUser());
-      else{loginError.textContent=r.msg;loginError.classList.remove("hidden");}
-    });
-    backToSetupBtn.addEventListener("click",function(){loginError.classList.add("hidden");showScreen(setupScreen);});
-    profileBtn.addEventListener("click",function(e){e.stopPropagation();profileDropdown.classList.toggle("hidden");keyDisplay.classList.add("hidden");});
-    document.addEventListener("click",function(e){if(!profileDropdown.contains(e.target)&&e.target!==profileBtn)profileDropdown.classList.add("hidden");});
-    genKeyBtn.addEventListener("click",function(){keyText.value=generateKey();keyDisplay.classList.remove("hidden");});
-    copyKeyBtn.addEventListener("click",function(){keyText.select();navigator.clipboard.writeText(keyText.value).then(function(){copyKeyBtn.textContent="✅ Copied!";setTimeout(function(){copyKeyBtn.textContent="📋 Copy";},2000);});});
-    logoutBtn.addEventListener("click",function(){if(confirm("Log out? Save your key first!")){localStorage.removeItem(USER_KEY);profileDropdown.classList.add("hidden");showScreen(setupScreen);}});
-    init();
-  </script>
+function updateHomeBucket(){
+  var craw=localStorage.getItem("candyClickerSave");
+  if(!craw)return;
+  // Try decode total candy
+  try{
+    var CIPHER="CandyClickAntiHack2026!@#$";
+    var raw=atob(craw);var out="";
+    for(var i=0;i<raw.length;i++)out+=String.fromCharCode(raw.charCodeAt(i)^CIPHER.charCodeAt(i%CIPHER.length));
+    var p=JSON.parse(out);var save=JSON.parse(p.d||"{}");
+    var total=save.totalCandy||0;
+    var stages=[{t:0,s:1},{t:500000,s:2},{t:500000000,s:3},{t:500000000000,s:4}];
+    var stage=1;for(var i=stages.length-1;i>=0;i--){if(total>=stages[i].t){stage=stages[i].s;break;}}
+    var img=document.getElementById("homeBucket");
+    if(img)img.src="CandyClicker/images/bucket_stage"+stage+".svg?v="+Date.now();
+  }catch(e){}
+}
+
+function showWelcomeToast(user,sess){
+  var toast=document.getElementById("welcomeToast");
+  var msg="👋 Welcome back, "+user.name+"!";
+  var sub="";
+  if(sess){
+    var last=sess.lastVisit;
+    if(last){var diff=Date.now()-last;var mins=Math.floor(diff/60000);
+      if(mins<60)sub="Away for "+mins+" minutes";
+      else if(mins<1440)sub="Away for "+Math.floor(mins/60)+" hours";
+      else sub="Away for "+Math.floor(mins/1440)+" days";}
+    if(sess.visitCount>1)sub+=" · Visit #"+sess.visitCount;
+  }
+  document.getElementById("welcomeMsg").textContent=msg;
+  document.getElementById("welcomeSub").textContent=sub;
+  toast.style.transform="translateX(-50%) translateY(0)";
+  setTimeout(function(){toast.style.transform="translateX(-50%) translateY(120px)";},4000);
+}
+
+function loadCommunityGames(){
+  var pubs=[];try{pubs=JSON.parse(localStorage.getItem("rc_published")||"[]");}catch(e){}
+  var grid=document.getElementById("communityGrid");
+  var empty=document.getElementById("emptyGames");
+  Array.from(grid.querySelectorAll(".game-tile")).forEach(function(c){c.remove();});
+  if(pubs.length===0){empty.style.display="block";return;}
+  empty.style.display="none";
+  pubs.forEach(function(g){
+    var tile=document.createElement("a");tile.href="creator/index.html#play_"+g.id;tile.className="game-tile";
+    tile.innerHTML='<div class="tile-thumb tile-thumb-user" style="background:#1a1030;font-size:4em;">'+escH(g.icon||"🎮")+'</div>'+
+      '<div class="tile-body"><div class="tile-name-row"><span class="tile-name">'+escH(g.name)+'</span><span class="tile-badge badge-new">NEW</span></div>'+
+      '<div class="tile-meta"><span class="tile-author">by '+escH(g.author||"Creator")+'</span></div></div>';
+    grid.insertBefore(tile,empty);
+  });
+}
+
+function init(){
+  var user=RC.getUser();
+  if(user){
+    RC.touchUser();
+    RC.startSession();
+    // Determine if returning or first load
+    var sess=RC.getSession();
+    var isReturn=(sess&&sess.visitCount>1);
+    showHome(user,isReturn);
+    // Achievements
+    if(sess&&sess.visitCount>=10)RC.unlockAchievement("visitor_10");
+    if(sess&&sess.totalPlayTime>=3600)RC.unlockAchievement("playtime_1h");
+  } else {
+    showSetup();
+  }
+}
+
+// Setup
+document.getElementById("setupBtn").addEventListener("click",function(){
+  var n=document.getElementById("setupName").value.trim();
+  if(!n){document.getElementById("setupName").focus();return;}
+  RC.setUser(n);RC.startSession();showHome(RC.getUser(),false);
+});
+document.getElementById("setupName").addEventListener("keydown",function(e){if(e.key==="Enter")document.getElementById("setupBtn").click();});
+document.getElementById("showLoginBtn").addEventListener("click",showLogin);
+
+// Login
+document.getElementById("loginBtn").addEventListener("click",function(){
+  var n=document.getElementById("loginName").value.trim();
+  var k=document.getElementById("loginKey").value.trim();
+  if(!n){document.getElementById("loginName").focus();return;}
+  if(!k){document.getElementById("loginKey").focus();return;}
+  var r=RC.importKey(n,k);
+  if(r.ok){RC.startSession();showHome(r.user,true);}
+  else{document.getElementById("loginError").textContent=r.msg;document.getElementById("loginError").classList.remove("hidden");}
+});
+document.getElementById("backToSetupBtn").addEventListener("click",function(){
+  document.getElementById("loginError").classList.add("hidden");
+  document.getElementById("loginScreen").classList.add("hidden");
+  document.getElementById("setupScreen").classList.remove("hidden");
+});
+
+// Profile
+document.getElementById("profileBtn").addEventListener("click",function(e){
+  e.stopPropagation();
+  document.getElementById("profileDropdown").classList.toggle("hidden");
+  document.getElementById("keyDisplay").classList.add("hidden");
+});
+document.addEventListener("click",function(e){
+  var pd=document.getElementById("profileDropdown");
+  if(!pd.contains(e.target)&&e.target!==document.getElementById("profileBtn"))pd.classList.add("hidden");
+});
+document.getElementById("genKeyBtn").addEventListener("click",function(){
+  var key=RC.exportKey();
+  if(!key){alert("Not logged in!");return;}
+  document.getElementById("keyText").value=key;
+  document.getElementById("keyDisplay").classList.remove("hidden");
+});
+document.getElementById("copyKeyBtn").addEventListener("click",function(){
+  var kt=document.getElementById("keyText");kt.select();
+  navigator.clipboard.writeText(kt.value).then(function(){
+    document.getElementById("copyKeyBtn").textContent="✅ Copied!";
+    setTimeout(function(){document.getElementById("copyKeyBtn").textContent="📋 Copy Key";},2500);
+  }).catch(function(){try{kt.select();document.execCommand("copy");}catch(e){}});
+});
+document.getElementById("logoutBtn").addEventListener("click",function(){
+  if(confirm("Log out? Make sure you've saved your key first!")){
+    RC.logout();hideAll();showSetup();
+  }
+});
+
+init();
+</script>
 </body>
 </html>

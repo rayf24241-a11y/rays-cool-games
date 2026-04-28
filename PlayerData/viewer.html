@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Player Data Viewer — RAYS CREAT3R</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700;800&family=JetBrains+Mono:wght@400;600&display=swap');
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:#0d1117;color:#e6edf3;font-family:'Nunito',sans-serif;min-height:100vh;padding:30px 20px;}
+h1{font-family:'Fredoka One',cursive;color:#c084fc;font-size:2em;margin-bottom:6px;display:flex;align-items:center;gap:10px;}
+.sub{color:#8b949e;font-size:.9em;margin-bottom:28px;}
+.card{background:#161b22;border:1px solid #30363d;border-radius:12px;padding:20px;margin-bottom:18px;}
+.card h2{font-family:'Fredoka One',cursive;font-size:1.1em;color:#a855f7;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #21262d;font-size:.88em;}
+.row:last-child{border-bottom:none;}
+.row .key{color:#8b949e;}
+.row .val{color:#e6edf3;font-weight:700;font-family:'JetBrains Mono',monospace;font-size:.85em;}
+.row .val.big{color:#ffd700;font-size:1em;}
+.row .val.green{color:#3fb950;}
+.row .val.red{color:#f85149;}
+pre{background:#0d1117;border:1px solid #21262d;border-radius:8px;padding:14px;overflow-x:auto;font-size:.75em;font-family:'JetBrains Mono',monospace;color:#8b949e;max-height:200px;overflow-y:auto;white-space:pre-wrap;word-break:break-all;}
+.btn{padding:9px 18px;border:none;border-radius:7px;font-weight:800;font-size:.85em;cursor:pointer;font-family:'Nunito',sans-serif;transition:all .15s;}
+.btn-purple{background:linear-gradient(135deg,#a855f7,#7c3aed);color:#fff;}
+.btn-purple:hover{box-shadow:0 4px 16px rgba(124,58,237,.4);}
+.btn-red{background:rgba(248,81,73,.15);border:1px solid rgba(248,81,73,.4);color:#f85149;}
+.btn-red:hover{background:rgba(248,81,73,.25);}
+.btn-gray{background:#21262d;border:1px solid #30363d;color:#8b949e;}
+.btn-gray:hover{border-color:#58a6ff;color:#58a6ff;}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;}
+.ach-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;}
+.ach-item{background:#0d1117;border:1px solid #21262d;border-radius:8px;padding:10px 12px;display:flex;align-items:center;gap:9px;font-size:.83em;}
+.ach-item.unlocked{border-color:rgba(255,215,0,.3);background:rgba(255,215,0,.04);}
+.ach-icon{font-size:1.5em;width:28px;text-align:center;}
+.ach-name{font-weight:800;color:#e6edf3;margin-bottom:2px;}
+.ach-desc{color:#8b949e;font-size:.85em;}
+.ach-locked{opacity:.35;}
+.toast{position:fixed;bottom:24px;right:24px;background:#161b22;border:1px solid #a855f7;border-radius:10px;padding:12px 20px;color:#c084fc;font-weight:700;font-size:.9em;transform:translateY(100px);transition:transform .3s;z-index:99;}
+.toast.show{transform:translateY(0);}
+.stat-bar{background:#21262d;border-radius:20px;height:8px;overflow:hidden;margin-top:6px;}
+.stat-bar-fill{height:100%;border-radius:20px;background:linear-gradient(135deg,#a855f7,#7c3aed);}
+a{color:#58a6ff;}
+</style>
+</head>
+<body>
+<div style="max-width:900px;margin:0 auto;">
+<a href="../index.html" style="font-size:.85em;color:#8b949e;text-decoration:none;margin-bottom:16px;display:inline-block;">← Back to RAYS CREAT3R</a>
+<h1>🗂️ Player Data Viewer</h1>
+<p class="sub">All your data lives in this browser's localStorage. Nothing is sent to any server.</p>
+
+<div class="card" id="cardProfile">
+  <h2>👤 Profile</h2>
+  <div id="profileContent"><div style="color:#8b949e;">Not logged in.</div></div>
+</div>
+
+<div class="card" id="cardSession">
+  <h2>📅 Session Stats</h2>
+  <div id="sessionContent"><div style="color:#8b949e;">No session data.</div></div>
+</div>
+
+<div class="card" id="cardCandy">
+  <h2>🍬 Candy Clicker Save</h2>
+  <div id="candyContent"><div style="color:#8b949e;">No save found.</div></div>
+</div>
+
+<div class="card" id="cardProjects">
+  <h2>🎮 Creator Projects</h2>
+  <div id="projectsContent"><div style="color:#8b949e;">No projects.</div></div>
+</div>
+
+<div class="card" id="cardAch">
+  <h2>🏆 Achievements</h2>
+  <div id="achContent"></div>
+</div>
+
+<div class="card">
+  <h2>⚙️ Data Management</h2>
+  <div class="actions">
+    <button class="btn btn-purple" onclick="exportAll()">📦 Export All Data</button>
+    <button class="btn btn-gray" onclick="copyKey()">🔑 Copy Account Key</button>
+    <button class="btn btn-red" onclick="resetCandy()">🗑️ Reset Candy Clicker</button>
+    <button class="btn btn-red" onclick="resetAll()">⚠️ Reset Everything</button>
+  </div>
+</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+var ACHIEVEMENTS = [
+  {id:"first_candy",name:"First Candy!",icon:"🍬",desc:"Earn your very first candy"},
+  {id:"candy_1k",name:"Sweet Start",icon:"🍭",desc:"Earn 1,000 total candy"},
+  {id:"candy_1m",name:"Sugar Rush",icon:"🌊",desc:"Earn 1 million total candy"},
+  {id:"candy_1b",name:"Candy Baron",icon:"💎",desc:"Earn 1 billion total candy"},
+  {id:"candy_1t",name:"Candy God",icon:"👑",desc:"Earn 1 trillion total candy"},
+  {id:"first_building",name:"First Purchase",icon:"🏪",desc:"Buy your first building"},
+  {id:"buildings_10",name:"Builder",icon:"🏗️",desc:"Own 10 buildings total"},
+  {id:"buildings_50",name:"Tycoon",icon:"🏢",desc:"Own 50 buildings total"},
+  {id:"first_upgrade",name:"Upgraded!",icon:"⬆️",desc:"Buy your first upgrade"},
+  {id:"bucket_evolved",name:"Evolution",icon:"✨",desc:"Evolve your bucket to Stage 2"},
+  {id:"bucket_shiny",name:"Shiny Bucket",icon:"🌟",desc:"Evolve to Stage 3"},
+  {id:"bucket_golden",name:"Golden Legend",icon:"🏆",desc:"Reach the Golden bucket"},
+  {id:"golden_candy",name:"Lucky!",icon:"🌠",desc:"Trigger a Golden Candy drop"},
+  {id:"combo_10",name:"Combo King",icon:"🔥",desc:"Reach a 10x click combo"},
+  {id:"first_publish",name:"Developer",icon:"🚀",desc:"Publish your first game"},
+  {id:"creator_5blocks",name:"Coder",icon:"💻",desc:"Add 5 code blocks to a game"},
+  {id:"pixel_artist",name:"Pixel Artist",icon:"🎨",desc:"Create a character with pixel art"},
+  {id:"visitor_10",name:"Regular",icon:"📅",desc:"Visit RAYS CREAT3R 10 times"},
+  {id:"playtime_1h",name:"Dedicated",icon:"⏰",desc:"Play for 1 hour total"},
+  {id:"all_upgrades",name:"Maxed Out",icon:"💯",desc:"Buy all upgrades"}
+];
+
+var CIPHER_KEY = "CandyClickAntiHack2026!@#$";
+function xorDecode(enc){
+  try{
+    var raw=atob(enc);var out="";
+    for(var i=0;i<raw.length;i++)out+=String.fromCharCode(raw.charCodeAt(i)^CIPHER_KEY.charCodeAt(i%CIPHER_KEY.length));
+    var p=JSON.parse(out);
+    if(p&&p.d)return JSON.parse(p.d);
+    return null;
+  }catch(e){try{return JSON.parse(atob(enc));} catch(e2){return null;}}
+}
+
+function fmt(n){
+  if(n>=1e12)return(n/1e12).toFixed(2)+" trillion";
+  if(n>=1e9)return(n/1e9).toFixed(2)+" billion";
+  if(n>=1e6)return(n/1e6).toFixed(2)+" million";
+  if(n>=1e3)return(n/1e3).toFixed(1)+"k";
+  return Math.floor(n).toLocaleString();
+}
+function fmtTime(ms){
+  var s=Math.floor(ms/1000);var m=Math.floor(s/60);var h=Math.floor(m/60);
+  if(h>0)return h+"h "+( m%60)+"m";if(m>0)return m+"m "+(s%60)+"s";return s+"s";
+}
+function fmtDate(ts){if(!ts)return"—";return new Date(ts).toLocaleString();}
+function row(k,v,cls){return '<div class="row"><span class="key">'+k+'</span><span class="val'+(cls?' '+cls:'')+'">'+v+'</span></div>';}
+
+function load(){
+  // Profile
+  var user=null;try{user=JSON.parse(localStorage.getItem("rc_user"));}catch(e){}
+  // Also check old key
+  if(!user){try{user=JSON.parse(localStorage.getItem("candyclick_user"));}catch(e){}}
+  var pc=document.getElementById("profileContent");
+  if(user){
+    pc.innerHTML=row("Username","<span style='font-size:1.1em;font-weight:900;color:#c084fc;'>"+user.name+"</span>")+
+      row("Account Created",fmtDate(user.created))+
+      row("Last Seen",fmtDate(user.lastSeen));
+  } else {pc.innerHTML='<div style="color:#8b949e;">Not logged in — <a href="../index.html">go log in</a></div>';}
+
+  // Session
+  var sess=null;try{sess=JSON.parse(localStorage.getItem("rc_session"));}catch(e){}
+  var sc=document.getElementById("sessionContent");
+  if(sess){
+    var pct=Math.min(100,((sess.totalPlayTime||0)/3600)*100);
+    sc.innerHTML=row("Total Visits","<span class='big'>"+( sess.visitCount||0)+"</span>")+
+      row("First Visit",fmtDate(sess.firstVisit))+
+      row("Last Visit",fmtDate(sess.lastVisit))+
+      row("Total Play Time","<span class='green'>"+fmtTime((sess.totalPlayTime||0)*1000)+"</span>")+
+      '<div style="margin-top:10px;font-size:.8em;color:#8b949e;">Progress to 1h achievement</div>'+
+      '<div class="stat-bar"><div class="stat-bar-fill" style="width:'+pct+'%"></div></div>';
+  } else {sc.innerHTML='<div style="color:#8b949e;">No session data yet.</div>';}
+
+  // Candy save
+  var craw=localStorage.getItem("candyClickerSave");
+  var cc=document.getElementById("candyContent");
+  if(craw){
+    var save=xorDecode(craw);
+    if(save){
+      var bTotal=(save.buildings||[]).reduce(function(a,b){return a+b;},0);
+      var uTotal=(save.upgrades||[]).filter(Boolean).length;
+      var STAGES=[{t:0,n:"🪣 Rusty"},{t:500000,n:"🪣 Dented"},{t:500000000,n:"🪣 Shiny"},{t:500000000000,n:"🏆 Golden"}];
+      var stage=STAGES[0];for(var i=STAGES.length-1;i>=0;i--){if((save.totalCandy||0)>=STAGES[i].t){stage=STAGES[i];break;}}
+      cc.innerHTML=row("Candy",fmt(save.candy||0),"big")+
+        row("Total Ever Earned",fmt(save.totalCandy||0))+
+        row("Per Click",fmt(save.candyPerClick||1))+
+        row("Per Second",fmt(save.candyPerSecond||0))+
+        row("Buildings Owned","<span class='green'>"+bTotal+"</span>")+
+        row("Upgrades Bought",uTotal+" / 5")+
+        row("Bucket Stage",stage.n)+
+        row("Last Saved",fmtDate(save.lastSave));
+    } else {cc.innerHTML='<pre>'+craw.slice(0,200)+'...</pre><div style="color:#8b949e;font-size:.8em;margin-top:8px;">Raw encoded save (use account key to transfer)</div>';}
+  } else {cc.innerHTML='<div style="color:#8b949e;">No Candy Clicker save found. Play the game first!</div>';}
+
+  // Projects
+  var projects=[];try{projects=JSON.parse(localStorage.getItem("rc_projects")||"[]");}catch(e){}
+  var prc=document.getElementById("projectsContent");
+  if(projects.length>0){
+    prc.innerHTML='<div class="row"><span class="key">Total Projects</span><span class="val big">'+projects.length+'</span></div>';
+    projects.forEach(function(p){
+      var blocks=0;(p.scenes||[]).forEach(function(s){blocks+=(s.blocks||[]).length;});
+      prc.innerHTML+=row(p.icon+" "+p.name,(p.published?"<span class='green'>Published</span>":"Draft")+" · "+(p.scenes||[]).length+" scenes · "+blocks+" blocks");
+    });
+  } else {prc.innerHTML='<div style="color:#8b949e;">No creator projects yet. <a href="../creator/">Open Creator</a></div>';}
+
+  // Achievements
+  var unlocked=[];try{unlocked=JSON.parse(localStorage.getItem("rc_achievements")||"[]");}catch(e){}
+  var ach=document.getElementById("achContent");
+  ach.innerHTML='<div style="color:#8b949e;font-size:.85em;margin-bottom:12px;">'+unlocked.length+' / '+ACHIEVEMENTS.length+' unlocked</div>';
+  var grid=document.createElement("div");grid.className="ach-grid";
+  ACHIEVEMENTS.forEach(function(a){
+    var ok=unlocked.indexOf(a.id)>=0;
+    var d=document.createElement("div");d.className="ach-item"+(ok?" unlocked":" ach-locked");
+    d.innerHTML='<div class="ach-icon">'+a.icon+'</div><div><div class="ach-name">'+a.name+'</div><div class="ach-desc">'+a.desc+'</div></div>';
+    grid.appendChild(d);
+  });
+  ach.appendChild(grid);
+}
+
+function toast(msg){var t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");setTimeout(function(){t.classList.remove("show");},2500);}
+
+function exportAll(){
+  var data={user:null,session:null,achievements:[],candy:null,projects:[]};
+  try{data.user=JSON.parse(localStorage.getItem("rc_user"));}catch(e){}
+  try{data.session=JSON.parse(localStorage.getItem("rc_session"));}catch(e){}
+  try{data.achievements=JSON.parse(localStorage.getItem("rc_achievements")||"[]");}catch(e){}
+  data.candyRaw=localStorage.getItem("candyClickerSave")||"";
+  try{data.projects=JSON.parse(localStorage.getItem("rc_projects")||"[]");}catch(e){}
+  var blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
+  var url=URL.createObjectURL(blob);var a=document.createElement("a");
+  a.href=url;a.download="rays_creat3r_data_"+(data.user?data.user.name:"export")+"_"+Date.now()+".json";
+  a.click();URL.revokeObjectURL(url);
+  toast("📦 Data exported!");
+}
+
+function copyKey(){
+  var user=null;try{user=JSON.parse(localStorage.getItem("rc_user"));}catch(e){}
+  if(!user){toast("⚠️ Not logged in!");return;}
+  var payload={ver:3,user:user,
+    session:JSON.parse(localStorage.getItem("rc_session")||"null"),
+    achievements:JSON.parse(localStorage.getItem("rc_achievements")||"[]"),
+    candySave:localStorage.getItem("candyClickerSave")||"",
+    projects:localStorage.getItem("rc_projects")||"[]"};
+  var key=btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
+  navigator.clipboard.writeText(key).then(function(){toast("✅ Account key copied!");}).catch(function(){toast("📋 Copy failed — use the home page key generator");});
+}
+
+function resetCandy(){
+  if(confirm("Reset Candy Clicker save? This cannot be undone.")){
+    localStorage.removeItem("candyClickerSave");load();toast("🗑️ Candy Clicker save reset!");
+  }
+}
+function resetAll(){
+  if(confirm("⚠️ This will delete EVERYTHING — profile, saves, projects. Are you sure?"))
+  if(confirm("Really sure? This cannot be undone.")){
+    ["rc_user","rc_session","rc_achievements","rc_projects","rc_published","candyClickerSave","candyclick_user"].forEach(function(k){localStorage.removeItem(k);});
+    load();toast("🗑️ All data cleared.");
+  }
+}
+
+load();
+</script>
+</body>
+</html>

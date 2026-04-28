@@ -1,50 +1,47 @@
-# PlayerData
+# PlayerData — RAYS CREAT3R Save System
 
-This folder holds exported player save files.
+All player data is stored in the browser's `localStorage`. No server or account required.
 
-## How it works
+## Storage Keys
 
-When a player clicks **Generate Key** on the home screen, their full save data
-is encoded into a portable key string. This key can be imported on any browser
-using **Log In With Key**.
+| Key | Description |
+|-----|-------------|
+| `rc_user` | User profile (name, created date, avatar color) |
+| `rc_session` | Session tracking (last visit, total play time, visit count) |
+| `rc_achievements` | Unlocked achievements array |
+| `rc_projects` | All creator game projects (JSON array) |
+| `rc_published` | Published games visible on the homepage |
+| `candyClickerSave` | Candy Clicker game save (encoded by AntiHack module) |
 
-## Save file format
+## Files In This Folder
 
-Player data is stored in the browser's localStorage using encrypted + checksummed
-JSON. The AntiCheat system will detect and reject any manually modified saves.
+| File | Purpose |
+|------|---------|
+| `README.md` | This file — system overview |
+| `player_profile.schema.json` | Shape of the rc_user object |
+| `game_saves.schema.json` | Shape of game save data |
+| `session_tracker.schema.json` | Shape of session data |
+| `achievements.schema.json` | All achievement definitions |
+| `viewer.html` | Open in browser to view/export/reset your data |
 
-## Files in this folder
+## How Persistence Works
 
-| File | Description |
-|------|-------------|
-| `player_schema.json` | Template showing the structure of a player save |
+1. On first visit → Setup screen → name saved to `rc_user`
+2. On every return visit → `rc_user` found in localStorage → skip login
+3. Session data updated on every page load
+4. Account Key (from profile dropdown) bundles ALL data into a portable string
+5. Use the Key on any browser to restore everything instantly
 
-## Fields
+## Key Format
 
+The account key is base64-encoded JSON containing:
 ```json
 {
-  "user": {
-    "name": "PlayerName",
-    "created": 1714000000000
-  },
-  "save": {
-    "candy": 0,
-    "candyPerClick": 1,
-    "candyPerSecond": 0,
-    "totalCandy": 0,
-    "buildings": [0, 0, 0, 0, 0, 0],
-    "upgrades":  [false, false, false, false, false]
-  }
+  "ver": 3,
+  "user": { ... },
+  "session": { ... },
+  "achievements": [ ... ],
+  "candySave": "...(encoded)...",
+  "projects": "...(JSON string)..."
 }
 ```
-
-## Buildings index
-
-| Index | Building | CPS |
-|-------|----------|-----|
-| 0 | Trick-or-Treater | 0.1 |
-| 1 | Candy Bowl | 1 |
-| 2 | Candy Corn Farm | 8 |
-| 3 | Chocolate Factory | 47 |
-| 4 | Sugar Mine | 260 |
-| 5 | Gummy Lab | 1,400 |

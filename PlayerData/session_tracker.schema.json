@@ -1,0 +1,1 @@
+{"_desc":"Shape of rc_session in localStorage","visitCount":"number","firstVisit":"number (ms)","lastVisit":"number (ms)","totalPlayTime":"number (seconds)","currentSessionStart":"number (ms) — deleted on page leave","_example":{"visitCount":42,"firstVisit":1714000000000,"lastVisit":1714500000000,"totalPlayTime":18340}}

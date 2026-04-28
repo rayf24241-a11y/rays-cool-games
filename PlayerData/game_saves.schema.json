@@ -1,0 +1,1 @@
+{"_desc":"Shape of candyClickerSave (decoded)","candy":"number","candyPerClick":"number","candyPerSecond":"number","totalCandy":"number","lastSave":"number (ms)","cpsMultiplier":"number","buildings":"number[] — index matches building order","upgrades":"boolean[] — index matches upgrade order","_note":"Stored XOR-encoded in localStorage by AntiHack module"}
