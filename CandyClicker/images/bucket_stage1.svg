@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 220">
+  <defs>
+    <radialGradient id="r1" cx="40%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="#c44a1a"/><stop offset="45%" stop-color="#922e0e"/><stop offset="100%" stop-color="#6b1c06"/>
+    </radialGradient>
+    <linearGradient id="shine1" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#000" stop-opacity="0.45"/><stop offset="28%" stop-color="#fff" stop-opacity="0.07"/><stop offset="100%" stop-color="#000" stop-opacity="0.55"/>
+    </linearGradient>
+    <linearGradient id="rim1" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#8a7060"/><stop offset="100%" stop-color="#4a3020"/>
+    </linearGradient>
+    <clipPath id="bc1"><polygon points="38,55 162,55 148,185 52,185"/></clipPath>
+  </defs>
+  <!-- Handle -->
+  <path d="M68,48 Q100,18 132,48" stroke="#5a4030" stroke-width="7" fill="none" stroke-linecap="round"/>
+  <circle cx="68" cy="50" r="6" fill="#5a4030" stroke="#3a2010" stroke-width="1.5"/>
+  <circle cx="132" cy="50" r="6" fill="#5a4030" stroke="#3a2010" stroke-width="1.5"/>
+  <!-- Body -->
+  <polygon points="38,55 162,55 148,185 52,185" fill="url(#r1)"/>
+  <!-- Heavy rust patches -->
+  <ellipse cx="78" cy="98" rx="30" ry="25" fill="#6b1c06" opacity="0.6" clip-path="url(#bc1)"/>
+  <ellipse cx="138" cy="128" rx="22" ry="32" fill="#5a1a04" opacity="0.65" clip-path="url(#bc1)"/>
+  <ellipse cx="98" cy="158" rx="36" ry="18" fill="#7a2008" opacity="0.5" clip-path="url(#bc1)"/>
+  <!-- Rust streaks -->
+  <line x1="70" y1="62" x2="64" y2="135" stroke="#4a1004" stroke-width="2.5" opacity="0.55" clip-path="url(#bc1)"/>
+  <line x1="112" y1="58" x2="108" y2="148" stroke="#5a1a04" stroke-width="2" opacity="0.45" clip-path="url(#bc1)"/>
+  <line x1="146" y1="62" x2="142" y2="152" stroke="#4a1004" stroke-width="2.5" opacity="0.5" clip-path="url(#bc1)"/>
+  <!-- Dents -->
+  <ellipse cx="72" cy="120" rx="11" ry="6" fill="#4a1404" opacity="0.75" transform="rotate(-15,72,120)" clip-path="url(#bc1)"/>
+  <ellipse cx="140" cy="92" rx="9" ry="5" fill="#4a1404" opacity="0.7" transform="rotate(10,140,92)" clip-path="url(#bc1)"/>
+  <ellipse cx="92" cy="170" rx="13" ry="4" fill="#4a1404" opacity="0.6" transform="rotate(-5,92,170)" clip-path="url(#bc1)"/>
+  <!-- Rust dots -->
+  <circle cx="85" cy="138" r="3.5" fill="#3a1004" opacity="0.7" clip-path="url(#bc1)"/>
+  <circle cx="124" cy="158" r="3" fill="#3a1004" opacity="0.65" clip-path="url(#bc1)"/>
+  <circle cx="58" cy="93" r="2.5" fill="#3a1004" opacity="0.55" clip-path="url(#bc1)"/>
+  <circle cx="149" cy="143" r="3.5" fill="#3a1004" opacity="0.65" clip-path="url(#bc1)"/>
+  <circle cx="100" cy="110" r="2" fill="#3a1004" opacity="0.5" clip-path="url(#bc1)"/>
+  <circle cx="66" cy="155" r="2.5" fill="#3a1004" opacity="0.5" clip-path="url(#bc1)"/>
+  <!-- Shine -->
+  <polygon points="38,55 162,55 148,185 52,185" fill="url(#shine1)"/>
+  <!-- Rims -->
+  <rect x="33" y="50" width="134" height="12" rx="3" fill="url(#rim1)"/>
+  <rect x="33" y="50" width="134" height="4" rx="3" fill="#fff" opacity="0.06"/>
+  <rect x="47" y="181" width="106" height="10" rx="3" fill="url(#rim1)"/>
+  <!-- Candy at top -->
+  <ellipse cx="70" cy="57" rx="7" ry="5" fill="#ff8800"/><ellipse cx="70" cy="57" rx="7" ry="3" fill="#ffbb44" opacity="0.6"/>
+  <ellipse cx="93" cy="55" rx="8" ry="5" fill="#ff4488"/><ellipse cx="93" cy="55" rx="8" ry="3" fill="#ff88bb" opacity="0.6"/>
+  <ellipse cx="116" cy="56" rx="6" ry="4" fill="#9933cc"/><ellipse cx="116" cy="56" rx="6" ry="2.5" fill="#cc77ff" opacity="0.55"/>
+  <ellipse cx="138" cy="57" rx="7" ry="5" fill="#ffcc00"/><ellipse cx="138" cy="57" rx="7" ry="3" fill="#ffee66" opacity="0.6"/>
+  <ellipse cx="57" cy="58" rx="5" ry="4" fill="#ee2222"/>
+  <ellipse cx="128" cy="55" rx="5" ry="3" fill="#22bb44"/>
+  <ellipse cx="106" cy="57" rx="5" ry="3" fill="#ff6600"/>
+</svg>

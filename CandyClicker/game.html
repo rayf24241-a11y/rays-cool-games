@@ -3,16 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Candy Clicker</title>
+  <title>Candy Clicker v1.1</title>
   <link rel="stylesheet" href="../style.css">
-  <style>
-    #bucketImg {
-      width: 220px; height: 220px; object-fit: contain;
-      filter: drop-shadow(0 0 28px rgba(255,100,0,0.5));
-      display: none; transition: filter 0.15s;
-    }
-    #bucketWrap:hover #bucketImg { filter: drop-shadow(0 0 50px rgba(255,120,0,0.85)); }
-  </style>
+  <link rel="icon" type="image/svg+xml" href="images/bucket_stage1.svg">
   <script src="../AntiCheat/ac_core.js"></script>
   <script src="../AntiCheat/ac_verify.js"></script>
   <script src="../AntiCheat/ac_guard.js"></script>
@@ -22,198 +15,423 @@
 </head>
 <body class="game-page">
 
-  <div id="acBlockScreen" style="display:none;position:fixed;inset:0;background:#060210;z-index:9999;align-items:center;justify-content:center;flex-direction:column;gap:20px;text-align:center;padding:30px;font-family:'Nunito',sans-serif;">
-    <div style="font-size:5em">🚫</div>
-    <div style="font-family:'Fredoka One',cursive;font-size:2em;color:#ee3344;letter-spacing:1px;">Anti-Cheat Missing</div>
-    <div style="color:#887766;font-size:0.95em;line-height:1.6;max-width:420px;">One or more required anti-cheat files are missing or have been modified.<br><br>Restore the <strong style="color:#aa8866;">AntiCheat</strong> folder and all its original files.</div>
-    <div style="font-family:Consolas,monospace;font-size:0.78em;color:#553333;background:#0d0618;padding:12px 20px;border-radius:8px;border:1px solid #221010;">Error: AC_INTEGRITY_FAIL — modules missing or tampered</div>
-    <a href="../index.html" style="color:#554444;font-size:0.85em;margin-top:8px;">← Back to home</a>
+<div id="acBlockScreen">
+  <div style="font-size:5em">🚫</div>
+  <div style="font-family:'Fredoka One',cursive;font-size:2em;color:#ff3344;letter-spacing:1px;">Anti-Cheat Missing</div>
+  <div style="color:#7a6a5a;font-size:.95em;line-height:1.6;max-width:420px;">One or more required anti-cheat files are missing or tampered.<br>Restore the <b style="color:#aa8866">AntiCheat</b> folder.</div>
+  <div style="font-family:Consolas,monospace;font-size:.78em;color:#553333;background:#0a0315;padding:12px 20px;border-radius:8px;border:1px solid #221010;">Error: AC_INTEGRITY_FAIL</div>
+  <a href="../index.html" style="color:#443333;font-size:.85em;">← Back to home</a>
+</div>
+
+<div id="gameRoot" style="display:none;height:100vh;flex-direction:column;">
+
+  <div id="gameTopBar">
+    <a href="../index.html" class="back-btn">← Home</a>
+    <div class="game-title-wrap">
+      <img class="game-title-bucket" id="topBarBucket" src="images/bucket_stage1.svg" alt="">
+      <h2 class="game-title">Candy Clicker</h2>
+    </div>
+    <div id="gameProfileBtn"><div id="gameProfileAvatar" class="avatar-small"></div></div>
   </div>
 
-  <div id="gameRoot" style="display:none;height:100vh;flex-direction:column;">
-    <div id="gameTopBar">
-      <a href="../index.html" class="back-btn">← Home</a>
-      <h2 class="game-title">🪣 Candy Clicker</h2>
-      <div id="gameProfileBtn"><div id="gameProfileAvatar" class="avatar-small"></div></div>
+  <div id="wrapper">
+    <div id="sectionMiddle">
+      <div id="versionBadge">✨ v1.1 Update</div>
+      <div id="evolveBadge">🪣 Evolve Progress</div>
+
+      <div id="candyCounter"><span id="candyDisplay">0</span> candies</div>
+      <div id="cpsDisplay">per second: <span id="cpsNum">0</span></div>
+      <div id="statsStrip">
+        <span>Total: <b id="totalDisplay">0</b></span>
+        <span>Click: <b id="clickDisplay">1</b></span>
+        <span>Stage: <b id="stageDisplay">🪣 Rusty</b></span>
+      </div>
+
+      <div id="bucketWrap" class="stage1">
+        <img id="bucketImg" src="images/bucket_stage1.svg" alt="Candy Bucket" draggable="false">
+        <div id="bucketFallback">🪣</div>
+      </div>
+
+      <div id="comboDisplay">🔥 x<span id="comboNum">1</span> COMBO!</div>
+      <div id="goldenPopup">✨ GOLDEN CANDY! ✨</div>
     </div>
-    <div id="wrapper">
-      <div id="sectionMiddle">
-        <div id="candyCounter"><span id="candyDisplay">0</span> candies</div>
-        <div id="cpsDisplay">per second: <span id="cpsNum">0</span></div>
-        <div id="clickerArea">
-          <div id="bucketWrap">
-            <img id="bucketImg" src="images/candy_bucket.svg" alt="Rusty Candy Bucket" draggable="false">
-            <div id="bucketFallback">🪣</div>
-          </div>
+
+    <div class="separator"></div>
+
+    <div id="sectionRight">
+      <h2>🏪 Shop</h2>
+
+      <div class="shop-section">
+        <div class="shop-section-header">
+          <h3>Upgrades</h3>
+          <span class="new-badge">New 1.1 Update!</span>
         </div>
+        <div id="upgradeList"></div>
       </div>
-      <div class="separator"></div>
-      <div id="sectionRight">
-        <h2>🏪 Shop</h2>
-        <div class="shop-section"><h3>Upgrades</h3><div id="upgradeList"></div></div>
-        <div class="shop-section"><h3>Buildings</h3><div id="buildingList"></div></div>
+
+      <div class="shop-section">
+        <div class="shop-section-header"><h3>Buildings</h3></div>
+        <div id="buildingList"></div>
       </div>
+
+      <div id="prestigeHint">⚡ Prestige available at 1 Trillion candy! Coming soon...</div>
     </div>
   </div>
-  <div id="floatingContainer"></div>
+</div>
 
-  <script>
-    (function() {
-      var ok = (typeof window.__CC_CHECK === "function") && window.__CC_CHECK();
-      if (!ok) {
-        document.getElementById("acBlockScreen").style.display = "flex";
-        document.getElementById("gameRoot").style.display = "none";
-        document.body.classList.remove("game-page");
-        throw new Error("AC_INTEGRITY_FAIL");
-      }
-      document.getElementById("acBlockScreen").style.display = "none";
-      document.getElementById("gameRoot").style.display = "flex";
-    })();
+<div id="floatingContainer"></div>
+<div id="offlineToast"><span id="offlineMsg">Welcome back!</span><p id="offlineSub"></p></div>
 
-    var SAVE_KEY = "candyClickerSave";
-    var USER_KEY = "candyclick_user";
+<script>
+// ============================================================
+//  ANTI-CHEAT CHECK
+// ============================================================
+(function(){
+  var ok=(typeof window.__CC_CHECK==="function")&&window.__CC_CHECK();
+  if(!ok){
+    document.getElementById("acBlockScreen").style.display="flex";
+    document.getElementById("gameRoot").style.display="none";
+    document.body.classList.remove("game-page");
+    throw new Error("AC_INTEGRITY_FAIL");
+  }
+  document.getElementById("acBlockScreen").style.display="none";
+  document.getElementById("gameRoot").style.display="flex";
+})();
 
-    var userRaw = localStorage.getItem(USER_KEY);
-    if (!userRaw) { window.location.href = "../index.html"; }
-    var currentUser = null;
-    try { currentUser = JSON.parse(userRaw); } catch(e) { window.location.href = "../index.html"; }
+// ============================================================
+//  CANDY CLICKER v1.1 — GAME ENGINE
+// ============================================================
+var SAVE_KEY="candyClickerSave", USER_KEY="candyclick_user";
 
-    var avatarEl = document.getElementById("gameProfileAvatar");
-    if (currentUser) {
-      var letter = (currentUser.name || "?").charAt(0).toUpperCase();
-      avatarEl.textContent = letter;
-      var colors = ["#e74c3c","#e67e22","#f1c40f","#2ecc71","#1abc9c","#3498db","#9b59b6","#e91e63"];
-      avatarEl.style.background = colors[letter.charCodeAt(0) % colors.length];
+// Login check
+var userRaw=localStorage.getItem(USER_KEY);
+if(!userRaw){window.location.href="../index.html";}
+var currentUser=null;
+try{currentUser=JSON.parse(userRaw);}catch(e){window.location.href="../index.html";}
+var avatarEl=document.getElementById("gameProfileAvatar");
+if(currentUser){
+  var L=(currentUser.name||"?").charAt(0).toUpperCase();
+  avatarEl.textContent=L;
+  var AC=["#e74c3c","#e67e22","#f1c40f","#2ecc71","#1abc9c","#3498db","#9b59b6","#e91e63"];
+  avatarEl.style.background=AC[L.charCodeAt(0)%AC.length];
+}
+
+// ====== GAME STATE ======
+var candy=0, candyPerClick=1, candyPerSecond=0, totalCandy=0;
+var lastSaveTime=Date.now();
+var comboCount=0, lastClickTime=0, comboTimer=null;
+var currentStage=1;
+
+// ====== BUCKET STAGES ======
+// Stage unlocks based on TOTAL candy ever earned (hard thresholds)
+var STAGES=[
+  {stage:1, threshold:0,          img:"images/bucket_stage1.svg", name:"🪣 Rusty",   class:"stage1"},
+  {stage:2, threshold:500000,     img:"images/bucket_stage2.svg", name:"🪣 Dented",  class:"stage2"},
+  {stage:3, threshold:500000000,  img:"images/bucket_stage3.svg", name:"🪣 Shiny",   class:"stage3"},
+  {stage:4, threshold:500000000000, img:"images/bucket_stage4.svg",name:"🏆 Golden", class:"stage4"},
+];
+
+// ====== BUILDINGS (9 total) ======
+var buildings=[
+  {name:"Trick-or-Treater",  baseCost:15,         cps:0.1,    owned:0, icon:"🧒"},
+  {name:"Candy Bowl",        baseCost:100,        cps:0.8,    owned:0, icon:"🍬"},
+  {name:"Candy Corn Farm",   baseCost:1200,       cps:7,      owned:0, icon:"🌽"},
+  {name:"Chocolate Factory", baseCost:14000,      cps:50,     owned:0, icon:"🏭"},
+  {name:"Sugar Mine",        baseCost:160000,     cps:280,    owned:0, icon:"⛏️"},
+  {name:"Gummy Lab",         baseCost:1800000,    cps:1600,   owned:0, icon:"🧪"},
+  {name:"Caramel Reactor",   baseCost:22000000,   cps:9000,   owned:0, icon:"⚗️"},
+  {name:"Void Extractor",    baseCost:300000000,  cps:55000,  owned:0, icon:"🌀"},
+  {name:"Candy Dimension",   baseCost:5000000000, cps:350000, owned:0, icon:"🌌"},
+];
+
+// ====== UPGRADES v1.1 — 5 NEW, HARD ======
+// Each also changes what candyPerClick multiplier applies
+var upgrades=[
+  {name:"Iron Grip",         cost:50000,          mult:2, cpsBoost:false, bought:false, icon:"🔩", desc:"Double your click power. Worth every penny."},
+  {name:"Sugar Storm",       cost:2500000,        mult:3, cpsBoost:false, bought:false, icon:"🌪️",  desc:"3x click power. The bucket trembles."},
+  {name:"Infernal Caramel",  cost:200000000,      mult:3, cpsBoost:true,  bought:false, icon:"🔥", desc:"3x click AND all buildings produce 2x candy."},
+  {name:"Void Sweets",       cost:20000000000,    mult:5, cpsBoost:false, bought:false, icon:"🌑", desc:"5x click power. Beyond mortal comprehension."},
+  {name:"Eternal Caramel",   cost:5000000000000,  mult:10,cpsBoost:true,  bought:false, icon:"♾️", desc:"10x click. All buildings x3. The candy gods weep."},
+];
+
+// CPS boost multiplier (from cpsBoost upgrades)
+var cpsMultiplier=1;
+
+// ====== DOM REFS ======
+var candyDisplay=document.getElementById("candyDisplay");
+var cpsNum=document.getElementById("cpsNum");
+var totalDisplay=document.getElementById("totalDisplay");
+var clickDisplay=document.getElementById("clickDisplay");
+var stageDisplay=document.getElementById("stageDisplay");
+var buildingListEl=document.getElementById("buildingList");
+var upgradeListEl=document.getElementById("upgradeList");
+var bucketWrap=document.getElementById("bucketWrap");
+var bucketImg=document.getElementById("bucketImg");
+var bucketFallback=document.getElementById("bucketFallback");
+var floatContainer=document.getElementById("floatingContainer");
+var comboDisplay=document.getElementById("comboDisplay");
+var comboNum=document.getElementById("comboNum");
+var goldenPopup=document.getElementById("goldenPopup");
+var evolveBadge=document.getElementById("evolveBadge");
+var prestigeHint=document.getElementById("prestigeHint");
+var topBarBucket=document.getElementById("topBarBucket");
+
+// Image load
+bucketImg.addEventListener("load",function(){bucketImg.style.display="block";bucketFallback.style.display="none";});
+bucketImg.addEventListener("error",function(){bucketImg.style.display="none";bucketFallback.style.display="flex";});
+bucketFallback.style.display="flex";
+
+// ====== FORMAT ======
+function fmt(n){
+  if(n>=1e15)return(n/1e15).toFixed(2)+" quadrillion";
+  if(n>=1e12)return(n/1e12).toFixed(2)+" trillion";
+  if(n>=1e9)return(n/1e9).toFixed(2)+" billion";
+  if(n>=1e6)return(n/1e6).toFixed(2)+" million";
+  if(n>=1e3)return(n/1e3).toFixed(1)+"k";
+  return Math.floor(n).toLocaleString();
+}
+function fmtShort(n){
+  if(n>=1e12)return(n/1e12).toFixed(1)+"T";
+  if(n>=1e9)return(n/1e9).toFixed(1)+"B";
+  if(n>=1e6)return(n/1e6).toFixed(1)+"M";
+  if(n>=1e3)return(n/1e3).toFixed(1)+"K";
+  return Math.floor(n).toString();
+}
+
+function getBuildingCost(b){return Math.ceil(b.baseCost*Math.pow(1.15,b.owned));}
+
+// ====== STAGE SYSTEM ======
+function checkStage(){
+  var newStage=1;
+  for(var i=STAGES.length-1;i>=0;i--){
+    if(totalCandy>=STAGES[i].threshold){newStage=STAGES[i].stage;break;}
+  }
+  if(newStage!==currentStage){
+    currentStage=newStage;
+    applyStage(newStage);
+    showEvolveNotice(newStage);
+  }
+  // Show progress to next stage
+  var nextIdx=STAGES.findIndex(function(s){return s.stage===currentStage+1;});
+  if(nextIdx>-1){
+    var pct=Math.min(100,(totalCandy/STAGES[nextIdx].threshold*100)).toFixed(1);
+    evolveBadge.textContent="🪣 Next evolve: "+pct+"% ("+fmtShort(STAGES[nextIdx].threshold)+" total)";
+    evolveBadge.style.display="block";
+  } else {
+    evolveBadge.textContent="🏆 Max Evolution!";
+    evolveBadge.style.display="block";
+  }
+}
+
+function applyStage(s){
+  var sd=STAGES.find(function(x){return x.stage===s;});
+  if(!sd)return;
+  bucketWrap.className=sd.class;
+  bucketImg.src=sd.img+"?v="+Date.now();
+  topBarBucket.src=sd.img+"?v="+Date.now();
+  stageDisplay.textContent=sd.name;
+}
+
+function showEvolveNotice(s){
+  var sd=STAGES.find(function(x){return x.stage===s;});
+  if(!sd||s===1)return;
+  var toast=document.getElementById("offlineToast");
+  document.getElementById("offlineMsg").textContent="🪣 Bucket Evolved! → "+sd.name;
+  document.getElementById("offlineSub").textContent="Your bucket has been upgraded!";
+  toast.classList.add("show");
+  setTimeout(function(){toast.classList.remove("show");},4000);
+}
+
+// ====== UPDATE UI ======
+function updateUI(){
+  candyDisplay.textContent=fmt(candy);
+  cpsNum.textContent=fmt(candyPerSecond);
+  totalDisplay.textContent=fmtShort(totalCandy);
+  clickDisplay.textContent=fmtShort(candyPerClick);
+  renderBuildings();
+  renderUpgrades();
+  checkStage();
+  if(totalCandy>=1e12)prestigeHint.style.display="block";
+}
+
+// ====== RENDER ======
+function renderBuildings(){
+  buildingListEl.innerHTML="";
+  buildings.forEach(function(b,i){
+    var cost=getBuildingCost(b);
+    var div=document.createElement("div");
+    div.className="shop-item"+(candy>=cost?" affordable":" locked");
+    div.innerHTML='<span class="shop-icon">'+b.icon+'</span><div class="shop-info"><strong>'+b.name+'</strong><span class="shop-cost">🍬 '+fmt(cost)+'</span><span class="shop-desc">+'+b.cps+' candy/sec each</span></div><span class="shop-owned">'+b.owned+'</span>';
+    div.onclick=function(){buyBuilding(i);};
+    buildingListEl.appendChild(div);
+  });
+}
+
+function renderUpgrades(){
+  upgradeListEl.innerHTML="";
+  upgrades.forEach(function(u,i){
+    if(u.bought)return;
+    var div=document.createElement("div");
+    div.className="shop-item upgrade-item"+(candy>=u.cost?" affordable":" locked");
+    div.innerHTML='<span class="shop-icon">'+u.icon+'</span><div class="shop-info"><strong>'+u.name+'</strong><span class="shop-desc">'+u.desc+'</span><span class="shop-cost">🍬 '+fmt(u.cost)+'</span></div>';
+    div.onclick=function(){buyUpgrade(i);};
+    upgradeListEl.appendChild(div);
+  });
+}
+
+// ====== BUY ======
+function buyBuilding(i){
+  var b=buildings[i],cost=getBuildingCost(b);
+  if(candy>=cost){candy-=cost;b.owned++;recalcCPS();updateUI();saveGame();}
+}
+function buyUpgrade(i){
+  var u=upgrades[i];
+  if(candy>=u.cost&&!u.bought){
+    candy-=u.cost;u.bought=true;
+    candyPerClick*=u.mult;
+    if(u.cpsBoost){
+      // Apply CPS boost
+      var boughtCpsBoosts=upgrades.filter(function(x){return x.bought&&x.cpsBoost;}).length;
+      cpsMultiplier=1;
+      upgrades.forEach(function(x){if(x.bought&&x.cpsBoost)cpsMultiplier*=2;});
     }
+    recalcCPS();updateUI();saveGame();
+    // Flash notification
+    showUpgradeBought(u.name);
+  }
+}
 
-    var candy = 0, candyPerClick = 1, candyPerSecond = 0, totalCandy = 0;
+function showUpgradeBought(name){
+  var toast=document.getElementById("offlineToast");
+  document.getElementById("offlineMsg").textContent="⬆️ Upgrade: "+name;
+  document.getElementById("offlineSub").textContent="Purchased and applied!";
+  toast.classList.add("show");
+  setTimeout(function(){toast.classList.remove("show");},3000);
+}
 
-    var buildings = [
-      { name: "Trick-or-Treater",  baseCost: 15,      cps: 0.1,  owned: 0, icon: "🧒" },
-      { name: "Candy Bowl",        baseCost: 100,     cps: 1,    owned: 0, icon: "🍬" },
-      { name: "Candy Corn Farm",   baseCost: 1100,    cps: 8,    owned: 0, icon: "🌽" },
-      { name: "Chocolate Factory", baseCost: 12000,   cps: 47,   owned: 0, icon: "🏭" },
-      { name: "Sugar Mine",        baseCost: 130000,  cps: 260,  owned: 0, icon: "⛏️" },
-      { name: "Gummy Lab",         baseCost: 1400000, cps: 1400, owned: 0, icon: "🧪" },
-    ];
+function recalcCPS(){
+  candyPerSecond=0;
+  buildings.forEach(function(b){candyPerSecond+=b.cps*b.owned;});
+  candyPerSecond=Math.round(candyPerSecond*cpsMultiplier*10)/10;
+}
 
-    var upgrades = [
-      { name: "Sticky Fingers",  cost: 100,     mult: 2, bought: false, desc: "Clicking is 2x sweeter" },
-      { name: "Sugar Rush",      cost: 500,     mult: 2, bought: false, desc: "Another 2x click power" },
-      { name: "Caramel Coating", cost: 10000,   mult: 2, bought: false, desc: "Yet another 2x click power" },
-      { name: "Golden Wrapper",  cost: 100000,  mult: 2, bought: false, desc: "2x click power again!" },
-      { name: "Haunted Bucket",  cost: 1000000, mult: 3, bought: false, desc: "3x click power... spooky" },
-    ];
+// ====== COMBO SYSTEM ======
+function updateCombo(){
+  var now=Date.now();
+  if(now-lastClickTime<600){
+    comboCount=Math.min(comboCount+1,50);
+  } else {
+    comboCount=1;
+  }
+  lastClickTime=now;
+  if(comboTimer)clearTimeout(comboTimer);
+  comboTimer=setTimeout(function(){comboCount=0;comboDisplay.classList.remove("visible");},800);
+  if(comboCount>=3){
+    comboNum.textContent=comboCount;
+    comboDisplay.classList.add("visible");
+  } else {
+    comboDisplay.classList.remove("visible");
+  }
+  // Return combo multiplier (max 5x at 50 combo)
+  return comboCount>=3?Math.min(1+Math.floor(comboCount/5)*0.5,5):1;
+}
 
-    var candyDisplay   = document.getElementById("candyDisplay");
-    var cpsNum         = document.getElementById("cpsNum");
-    var buildingListEl = document.getElementById("buildingList");
-    var upgradeListEl  = document.getElementById("upgradeList");
-    var bucketWrap     = document.getElementById("bucketWrap");
-    var bucketImg      = document.getElementById("bucketImg");
-    var bucketFallback = document.getElementById("bucketFallback");
-    var floatContainer = document.getElementById("floatingContainer");
+// ====== GOLDEN CANDY ======
+var goldenActive=false;
+function tryGoldenCandy(){
+  if(goldenActive)return;
+  if(Math.random()<0.005){ // 0.5% chance per click
+    goldenActive=true;
+    var bonus=Math.floor(candyPerClick*100+candyPerSecond*10);
+    candy+=bonus;totalCandy+=bonus;
+    goldenPopup.textContent="✨ GOLDEN CANDY! +"+fmt(bonus)+" ✨";
+    goldenPopup.classList.add("show");
+    setTimeout(function(){goldenPopup.classList.remove("show");goldenActive=false;},2000);
+  }
+}
 
-    bucketImg.addEventListener("load", function() { bucketImg.style.display = "block"; bucketFallback.style.display = "none"; });
-    bucketImg.addEventListener("error", function() { bucketImg.style.display = "none"; bucketFallback.style.display = "flex"; });
-    bucketFallback.style.display = "flex";
+// ====== CLICK HANDLER ======
+bucketWrap.addEventListener("click",function(e){
+  var comboMult=updateCombo();
+  var clickGain=Math.ceil(candyPerClick*comboMult);
+  candy+=clickGain;totalCandy+=clickGain;
+  bucketWrap.classList.remove("bounce");void bucketWrap.offsetWidth;bucketWrap.classList.add("bounce");
+  spawnFloat(e,clickGain,comboMult>1);
+  tryGoldenCandy();
+  updateUI();
+  saveGame();
+});
 
-    function fmt(n) {
-      if (n >= 1e12) return (n/1e12).toFixed(1) + " trillion";
-      if (n >= 1e9)  return (n/1e9).toFixed(1) + " billion";
-      if (n >= 1e6)  return (n/1e6).toFixed(1) + " million";
-      if (n >= 1e3)  return (n/1e3).toFixed(1) + "k";
-      return Math.floor(n).toLocaleString();
-    }
+function spawnFloat(e,amount,isCombo){
+  var el=document.createElement("div");
+  el.className="float-candy"+(isCombo?" golden":"");
+  el.textContent="+"+(isCombo?"🔥":"")+fmt(amount);
+  el.style.left=(e.clientX+(Math.random()*40-20))+"px";
+  el.style.top=(e.clientY-20)+"px";
+  floatContainer.appendChild(el);
+  setTimeout(function(){el.remove();},1200);
+}
 
-    function getBuildingCost(b) { return Math.ceil(b.baseCost * Math.pow(1.15, b.owned)); }
+// ====== GAME LOOP ======
+setInterval(function(){
+  if(candyPerSecond>0){
+    var gain=candyPerSecond/10;
+    candy+=gain;totalCandy+=gain;
+    updateUI();
+  }
+},100);
 
-    function updateUI() {
-      candyDisplay.textContent = fmt(candy);
-      cpsNum.textContent = fmt(candyPerSecond);
-      renderBuildings(); renderUpgrades();
-    }
+// ====== OFFLINE EARNINGS ======
+function checkOffline(savedTime){
+  if(!savedTime)return;
+  var elapsed=(Date.now()-savedTime)/1000; // seconds
+  if(elapsed<30)return; // ignore tiny gaps
+  if(elapsed>86400)elapsed=86400; // cap at 24h
+  var earned=Math.floor(candyPerSecond*elapsed*0.5); // 50% efficiency offline
+  if(earned<=0)return;
+  candy+=earned;totalCandy+=earned;
+  var toast=document.getElementById("offlineToast");
+  document.getElementById("offlineMsg").textContent="💤 Welcome back! +"+(fmt(earned))+" candies";
+  document.getElementById("offlineSub").textContent="Earned while offline ("+Math.round(elapsed/60)+" min away, 50% rate)";
+  toast.classList.add("show");
+  setTimeout(function(){toast.classList.remove("show");},5000);
+}
 
-    function renderBuildings() {
-      buildingListEl.innerHTML = "";
-      buildings.forEach(function(b, i) {
-        var cost = getBuildingCost(b);
-        var div = document.createElement("div");
-        div.className = "shop-item" + (candy >= cost ? " affordable" : " locked");
-        div.innerHTML = '<span class="shop-icon">'+b.icon+'</span><div class="shop-info"><strong>'+b.name+'</strong><span class="shop-cost">🍬 '+fmt(cost)+'</span></div><span class="shop-owned">'+b.owned+'</span>';
-        div.onclick = function() { buyBuilding(i); };
-        buildingListEl.appendChild(div);
-      });
-    }
+// ====== SAVE / LOAD ======
+function saveGame(){
+  lastSaveTime=Date.now();
+  window.__CC_SAVE(SAVE_KEY,{
+    candy:candy,candyPerClick:candyPerClick,candyPerSecond:candyPerSecond,
+    totalCandy:totalCandy,lastSave:lastSaveTime,cpsMultiplier:cpsMultiplier,
+    buildings:buildings.map(function(b){return b.owned;}),
+    upgrades:upgrades.map(function(u){return u.bought;})
+  });
+}
 
-    function renderUpgrades() {
-      upgradeListEl.innerHTML = "";
-      upgrades.forEach(function(u, i) {
-        if (u.bought) return;
-        var div = document.createElement("div");
-        div.className = "shop-item upgrade-item" + (candy >= u.cost ? " affordable" : " locked");
-        div.innerHTML = '<span class="shop-icon">⬆️</span><div class="shop-info"><strong>'+u.name+'</strong><span class="shop-desc">'+u.desc+'</span><span class="shop-cost">🍬 '+fmt(u.cost)+'</span></div>';
-        div.onclick = function() { buyUpgrade(i); };
-        upgradeListEl.appendChild(div);
-      });
-    }
+function loadGame(){
+  var s=window.__CC_LOAD(SAVE_KEY);
+  if(!s)return;
+  candy=s.candy||0;
+  candyPerClick=s.candyPerClick||1;
+  totalCandy=s.totalCandy||0;
+  cpsMultiplier=s.cpsMultiplier||1;
+  if(s.buildings)s.buildings.forEach(function(n,i){if(buildings[i])buildings[i].owned=n;});
+  if(s.upgrades)s.upgrades.forEach(function(b,i){if(upgrades[i])upgrades[i].bought=b;});
+  recalcCPS();
+  // Offline check
+  checkOffline(s.lastSave);
+  // Apply correct stage
+  var stage=1;
+  for(var i=STAGES.length-1;i>=0;i--){if(totalCandy>=STAGES[i].threshold){stage=STAGES[i].stage;break;}}
+  currentStage=stage;
+  applyStage(stage);
+}
 
-    function buyBuilding(i) {
-      var b = buildings[i], cost = getBuildingCost(b);
-      if (candy >= cost) { candy -= cost; b.owned++; recalcCPS(); updateUI(); saveGame(); }
-    }
+setInterval(saveGame,10000);
+window.addEventListener("beforeunload",saveGame);
 
-    function buyUpgrade(i) {
-      var u = upgrades[i];
-      if (candy >= u.cost && !u.bought) { candy -= u.cost; u.bought = true; candyPerClick *= u.mult; updateUI(); saveGame(); }
-    }
-
-    function recalcCPS() {
-      candyPerSecond = 0;
-      buildings.forEach(function(b) { candyPerSecond += b.cps * b.owned; });
-      candyPerSecond = Math.round(candyPerSecond * 10) / 10;
-    }
-
-    bucketWrap.addEventListener("click", function(e) {
-      candy += candyPerClick; totalCandy += candyPerClick;
-      bucketWrap.classList.remove("bounce"); void bucketWrap.offsetWidth; bucketWrap.classList.add("bounce");
-      spawnFloat(e, candyPerClick); updateUI(); saveGame();
-    });
-
-    function spawnFloat(e, amount) {
-      var el = document.createElement("div");
-      el.className = "float-candy";
-      el.textContent = "+" + fmt(amount);
-      el.style.left = (e.clientX + (Math.random()*40-20)) + "px";
-      el.style.top  = (e.clientY - 20) + "px";
-      floatContainer.appendChild(el);
-      setTimeout(function() { el.remove(); }, 1200);
-    }
-
-    setInterval(function() {
-      if (candyPerSecond > 0) { candy += candyPerSecond/10; totalCandy += candyPerSecond/10; updateUI(); }
-    }, 100);
-
-    function saveGame() {
-      window.__CC_SAVE(SAVE_KEY, {
-        candy: candy, candyPerClick: candyPerClick, candyPerSecond: candyPerSecond, totalCandy: totalCandy,
-        buildings: buildings.map(function(b){return b.owned;}),
-        upgrades:  upgrades.map(function(u){return u.bought;})
-      });
-    }
-
-    function loadGame() {
-      var s = window.__CC_LOAD(SAVE_KEY);
-      if (!s) return;
-      candy = s.candy || 0; candyPerClick = s.candyPerClick || 1; totalCandy = s.totalCandy || 0;
-      if (s.buildings) s.buildings.forEach(function(n,i){ if(buildings[i]) buildings[i].owned=n; });
-      if (s.upgrades)  s.upgrades.forEach(function(b,i){  if(upgrades[i])  upgrades[i].bought=b; });
-      recalcCPS();
-    }
-
-    setInterval(saveGame, 10000);
-    window.addEventListener("beforeunload", saveGame);
-    loadGame(); updateUI();
-  </script>
+loadGame();
+updateUI();
+</script>
 </body>
 </html>

@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 220">
+  <defs>
+    <radialGradient id="r3" cx="35%" cy="30%" r="70%">
+      <stop offset="0%" stop-color="#ff9944"/><stop offset="45%" stop-color="#ee6600"/><stop offset="100%" stop-color="#cc4400"/>
+    </radialGradient>
+    <linearGradient id="shine3" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#000" stop-opacity="0.35"/><stop offset="22%" stop-color="#fff" stop-opacity="0.22"/><stop offset="45%" stop-color="#fff" stop-opacity="0.08"/><stop offset="100%" stop-color="#000" stop-opacity="0.45"/>
+    </linearGradient>
+    <linearGradient id="rim3" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ddccbb"/><stop offset="50%" stop-color="#bbaa99"/><stop offset="100%" stop-color="#887766"/>
+    </linearGradient>
+    <radialGradient id="glow3" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ff8800" stop-opacity="0.15"/><stop offset="100%" stop-color="#ff8800" stop-opacity="0"/>
+    </radialGradient>
+    <clipPath id="bc3"><polygon points="38,55 162,55 148,185 52,185"/></clipPath>
+  </defs>
+  <!-- Glow behind bucket -->
+  <ellipse cx="100" cy="120" rx="80" ry="75" fill="url(#glow3)"/>
+  <!-- Handle - polished -->
+  <path d="M68,48 Q100,15 132,48" stroke="#ccaa88" stroke-width="7" fill="none" stroke-linecap="round"/>
+  <path d="M68,48 Q100,15 132,48" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.3"/>
+  <circle cx="68" cy="50" r="7" fill="#ccaa88" stroke="#aa8866" stroke-width="2"/>
+  <circle cx="132" cy="50" r="7" fill="#ccaa88" stroke="#aa8866" stroke-width="2"/>
+  <!-- Clean orange body -->
+  <polygon points="38,55 162,55 148,185 52,185" fill="url(#r3)"/>
+  <!-- Subtle highlight stripe -->
+  <polygon points="55,55 90,55 78,185 52,185" fill="#fff" opacity="0.04" clip-path="url(#bc3)"/>
+  <!-- Clean shine -->
+  <polygon points="38,55 162,55 148,185 52,185" fill="url(#shine3)"/>
+  <!-- Polished rims -->
+  <rect x="33" y="50" width="134" height="12" rx="3" fill="url(#rim3)"/>
+  <rect x="33" y="50" width="134" height="5" rx="3" fill="#fff" opacity="0.25"/>
+  <rect x="47" y="181" width="106" height="10" rx="3" fill="url(#rim3)"/>
+  <rect x="47" y="181" width="106" height="4" rx="3" fill="#fff" opacity="0.2"/>
+  <!-- Lots of candy -->
+  <ellipse cx="60" cy="57" rx="6" ry="4.5" fill="#ff2244"/>
+  <ellipse cx="74" cy="55" rx="7" ry="5" fill="#ff8800"/><ellipse cx="74" cy="55" rx="7" ry="2.5" fill="#ffcc66" opacity="0.8"/>
+  <ellipse cx="90" cy="56" rx="6.5" ry="4.5" fill="#ee44aa"/><ellipse cx="90" cy="56" rx="6.5" ry="2" fill="#ffaadd" opacity="0.7"/>
+  <ellipse cx="106" cy="55" rx="7" ry="5" fill="#9922ee"/><ellipse cx="106" cy="55" rx="7" ry="2.5" fill="#cc88ff" opacity="0.75"/>
+  <ellipse cx="122" cy="56" rx="6.5" ry="4.5" fill="#ffcc00"/><ellipse cx="122" cy="56" rx="6.5" ry="2" fill="#ffee88" opacity="0.8"/>
+  <ellipse cx="137" cy="57" rx="6" ry="4.5" fill="#22cc55"/>
+  <ellipse cx="150" cy="56" rx="5.5" ry="4" fill="#4499ff"/>
+</svg>
