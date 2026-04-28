@@ -1,0 +1,33 @@
+================================================================================
+                        CANDY CLICKER - PROJECT MANIFEST
+================================================================================
+
+FOLDER STRUCTURE (GitHub Pages ready)
+================================================================================
+
+candy-clicker/
+├── index.html              ← main game page (root level for GitHub Pages)
+├── style.css               ← all game styling
+├── candyclick.folder.txt   ← this file
+├── IMAGES/
+│   ├── clicker/
+│   │   └── candy_bucket.png
+│   └── shop/
+│       └── (shop item images)
+└── SHOP/
+    ├── upgrades/
+    ├── buildings/
+    └── specials/
+
+HOW TO RUN
+================================================================================
+1. Save candy_bucket.png into IMAGES/clicker/
+2. Open index.html in any browser
+3. Or deploy to GitHub Pages (see below)
+
+GITHUB PAGES
+================================================================================
+1. Create a repo on github.com
+2. Push this folder to it
+3. Settings > Pages > Deploy from branch > main > / (root)
+4. Visit https://YOUR-USERNAME.github.io/candy-clicker/
