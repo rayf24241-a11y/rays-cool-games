@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>RAYS COOL GAMES</title>
+<link rel="icon" href="CandyClicker/images/bucket_stage1.svg" type="image/svg+xml">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700;800;900&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  min-height:100vh;
+  font-family:'Nunito',sans-serif;
+  background:
+    radial-gradient(circle at top left,rgba(168,85,247,.35),transparent 35%),
+    radial-gradient(circle at bottom right,rgba(255,174,0,.25),transparent 35%),
+    #0d1117;
+  color:#e6edf3;
+  padding:28px;
+}
+.wrap{max-width:1000px;margin:0 auto}
+.hero{
+  padding:40px 24px;
+  border:1px solid #30363d;
+  border-radius:24px;
+  background:rgba(22,27,34,.82);
+  box-shadow:0 20px 60px rgba(0,0,0,.35);
+  text-align:center;
+}
+h1{font-family:'Fredoka One',cursive;font-size:clamp(2.2rem,6vw,4.5rem);color:#c084fc;letter-spacing:1px}
+.sub{color:#8b949e;font-size:1.05rem;margin-top:10px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px;margin-top:26px}
+.card{
+  display:block;text-decoration:none;color:#e6edf3;
+  background:#161b22;border:1px solid #30363d;border-radius:18px;
+  padding:26px;transition:.18s transform,.18s border-color,.18s box-shadow;
+}
+.card:hover{transform:translateY(-4px);border-color:#a855f7;box-shadow:0 12px 30px rgba(124,58,237,.25)}
+.icon{font-size:3rem;margin-bottom:10px}
+.card h2{font-family:'Fredoka One',cursive;color:#fff;font-size:1.35rem;margin-bottom:8px}
+.card p{color:#8b949e;line-height:1.45}
+.badge{display:inline-block;margin-top:14px;padding:8px 12px;border-radius:999px;background:linear-gradient(135deg,#a855f7,#7c3aed);font-weight:900;color:#fff}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <section class="hero">
+    <h1>🎮 RAYS COOL GAMES</h1>
+    <p class="sub">Play Candy Clicker or create your own game.</p>
+    <div class="grid">
+      <a class="card" href="CandyClicker/game.html">
+        <div class="icon">🍬</div>
+        <h2>Candy Clicker</h2>
+        <p>Click candy, buy upgrades, evolve your bucket, and save progress.</p>
+        <span class="badge">Play</span>
+      </a>
+      <a class="card" href="Creator/index.html">
+        <div class="icon">🛠️</div>
+        <h2>Game Creator</h2>
+        <p>Make projects, edit scenes, build characters, preview, and publish.</p>
+        <span class="badge">Create</span>
+      </a>
+      <a class="card" href="PlayerData/viewer.html">
+        <div class="icon">🗂️</div>
+        <h2>Player Data</h2>
+        <p>View saves, achievements, projects, and export your account key.</p>
+        <span class="badge">Open</span>
+      </a>
+    </div>
+  </section>
+</div>
+</body>
+</html>

@@ -1,147 +1,60 @@
-// ============================================================
-//  RAYS CREAT3R — SHARED AUTH & SESSION MODULE
-//  Include this on every page for consistent login state
-// ============================================================
-(function(window){
+// RAYS CREAT3R shared localStorage profile helpers
+(function(){
   "use strict";
+  var USER_KEY="rc_user";
+  var ACH_KEY="rc_achievements";
+  var SESSION_KEY="rc_session";
 
-  var USER_KEY    = "rc_user";
-  var SESSION_KEY = "rc_session";
-  var ACH_KEY     = "rc_achievements";
-  var LEGACY_KEY  = "candyclick_user";  // migrate from old version
-
-  // ── GET / SET USER ──────────────────────────────────────────
+  function readJSON(key, fallback){
+    try { return JSON.parse(localStorage.getItem(key) || JSON.stringify(fallback)); }
+    catch(e){ return fallback; }
+  }
+  function writeJSON(key, value){
+    try { localStorage.setItem(key, JSON.stringify(value)); } catch(e){}
+  }
+  function hashColor(name){
+    var colors=["#7c3aed","#a855f7","#58a6ff","#3fb950","#ffa657","#f85149","#ffd700"];
+    var h=0;
+    name=String(name||"Player");
+    for(var i=0;i<name.length;i++) h=(h*31+name.charCodeAt(i))>>>0;
+    return colors[h%colors.length];
+  }
   function getUser(){
-    var raw=localStorage.getItem(USER_KEY);
-    if(raw){try{return JSON.parse(raw);}catch(e){}}
-    // Migrate from old key
-    var old=localStorage.getItem(LEGACY_KEY);
-    if(old){
-      try{
-        var u=JSON.parse(old);
-        localStorage.setItem(USER_KEY,JSON.stringify(u));
-        localStorage.removeItem(LEGACY_KEY);
-        return u;
-      }catch(e){}
-    }
+    var u=readJSON(USER_KEY,null);
+    if(u && typeof u==="object" && u.name) return u;
     return null;
   }
-
-  function setUser(name){
-    var existing=getUser();
-    var u={
-      name:name,
-      created:existing?existing.created:Date.now(),
-      lastSeen:Date.now()
-    };
-    localStorage.setItem(USER_KEY,JSON.stringify(u));
-    return u;
-  }
-
   function touchUser(){
     var u=getUser();
-    if(u){u.lastSeen=Date.now();localStorage.setItem(USER_KEY,JSON.stringify(u));}
+    if(!u) return null;
+    u.lastSeen=Date.now();
+    writeJSON(USER_KEY,u);
+    var s=readJSON(SESSION_KEY,{visitCount:0,firstVisit:Date.now(),lastVisit:0,totalPlayTime:0});
+    if(!s.firstVisit) s.firstVisit=Date.now();
+    s.visitCount=(s.visitCount||0)+1;
+    s.lastVisit=Date.now();
+    writeJSON(SESSION_KEY,s);
     return u;
   }
-
-  function logout(){
-    localStorage.removeItem(USER_KEY);
-    endSession();
-  }
-
-  // ── SESSION TRACKING ────────────────────────────────────────
-  function startSession(){
-    var sess=getSession()||{visitCount:0,firstVisit:Date.now(),lastVisit:0,totalPlayTime:0};
-    sess.visitCount=(sess.visitCount||0)+1;
-    sess.lastVisit=Date.now();
-    sess.currentSessionStart=Date.now();
-    localStorage.setItem(SESSION_KEY,JSON.stringify(sess));
-    // Update play time every 30s
-    window._rcPlayTimer=setInterval(function(){
-      var s=getSession();
-      if(s){s.totalPlayTime=(s.totalPlayTime||0)+30;localStorage.setItem(SESSION_KEY,JSON.stringify(s));}
-    },30000);
-    // Save on leave
-    window.addEventListener("beforeunload",endSession);
-    return sess;
-  }
-
-  function endSession(){
-    if(window._rcPlayTimer)clearInterval(window._rcPlayTimer);
-    var s=getSession();
-    if(s&&s.currentSessionStart){
-      var elapsed=Math.floor((Date.now()-s.currentSessionStart)/1000);
-      s.totalPlayTime=(s.totalPlayTime||0)+elapsed;
-      delete s.currentSessionStart;
-      localStorage.setItem(SESSION_KEY,JSON.stringify(s));
+  function unlockAchievement(id){
+    if(!id) return;
+    var list=readJSON(ACH_KEY,[]);
+    if(!Array.isArray(list)) list=[];
+    if(list.indexOf(id)===-1){
+      list.push(id);
+      writeJSON(ACH_KEY,list);
     }
   }
-
-  function getSession(){
-    try{return JSON.parse(localStorage.getItem(SESSION_KEY));}catch(e){return null;}
-  }
-
-  // ── ACHIEVEMENTS ─────────────────────────────────────────────
-  function getAchievements(){
-    try{return JSON.parse(localStorage.getItem(ACH_KEY)||"[]");}catch(e){return[];}
-  }
-  function unlockAchievement(id,onUnlock){
-    var list=getAchievements();
-    if(list.indexOf(id)>=0)return false;
-    list.push(id);
-    localStorage.setItem(ACH_KEY,JSON.stringify(list));
-    if(typeof onUnlock==="function")onUnlock(id);
-    return true;
-  }
-  function hasAchievement(id){return getAchievements().indexOf(id)>=0;}
-
-  // ── ACCOUNT KEY (import / export) ───────────────────────────
-  function exportKey(){
-    var u=getUser();if(!u)return null;
-    var payload={
-      ver:3,
-      user:u,
-      session:getSession(),
-      achievements:getAchievements(),
-      candySave:localStorage.getItem("candyClickerSave")||"",
-      projects:localStorage.getItem("rc_projects")||"[]",
-      published:localStorage.getItem("rc_published")||"[]"
-    };
-    return btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
-  }
-
-  function importKey(name,key){
-    try{
-      var dec=decodeURIComponent(escape(atob(key.trim())));
-      var p=JSON.parse(dec);
-      if(!p.user&&!p.name)return{ok:false,msg:"Invalid key — no user data found."};
-      // Set user with the name they typed (override)
-      var u=p.user||{};u.name=name;u.lastSeen=Date.now();
-      localStorage.setItem(USER_KEY,JSON.stringify(u));
-      if(p.session)localStorage.setItem(SESSION_KEY,JSON.stringify(p.session));
-      if(p.achievements)localStorage.setItem(ACH_KEY,JSON.stringify(p.achievements));
-      if(p.candySave)localStorage.setItem("candyClickerSave",p.candySave);
-      if(p.projects&&p.projects!=="[]")localStorage.setItem("rc_projects",p.projects);
-      if(p.published&&p.published!=="[]")localStorage.setItem("rc_published",p.published);
-      return{ok:true,user:getUser()};
-    }catch(e){
-      return{ok:false,msg:"Could not read that key. Make sure you copied the whole thing."};
-    }
-  }
-
-  // ── AVATAR COLOR ─────────────────────────────────────────────
-  function avatarColor(name){
-    var c=["#7c3aed","#a855f7","#ec4899","#06b6d4","#10b981","#f59e0b","#ef4444","#8b5cf6","#14b8a6","#f97316"];
-    var l=(name||"?").charAt(0).toUpperCase();
-    return c[l.charCodeAt(0)%c.length];
-  }
-
-  // ── EXPOSE ───────────────────────────────────────────────────
   window.RC={
-    getUser:getUser, setUser:setUser, touchUser:touchUser, logout:logout,
-    startSession:startSession, endSession:endSession, getSession:getSession,
-    getAchievements:getAchievements, unlockAchievement:unlockAchievement, hasAchievement:hasAchievement,
-    exportKey:exportKey, importKey:importKey, avatarColor:avatarColor
+    getUser:getUser,
+    touchUser:touchUser,
+    avatarColor:hashColor,
+    unlockAchievement:unlockAchievement,
+    createUser:function(name){
+      name=(name||"Player").trim()||"Player";
+      var u={name:name,created:Date.now(),lastSeen:Date.now()};
+      writeJSON(USER_KEY,u);
+      return u;
+    }
   };
-
-})(window);
+})();

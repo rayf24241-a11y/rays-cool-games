@@ -591,9 +591,10 @@ function renderLibrary(){
 }
 
 document.getElementById('btnNewProject').addEventListener('click',function(){
-  var name=prompt('Game name:','My Game');
-  if(!name)return;
-  var p=createProject(name);
+  var count = (projects && projects.length ? projects.length + 1 : 1);
+  var name = 'My Game ' + count;
+  var p = createProject(name);
+  renderLibrary();
   openProject(p.id);
 });
 

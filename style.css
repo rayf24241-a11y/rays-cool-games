@@ -1,0 +1,99 @@
+@import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700;800;900&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body.game-page{
+  background:
+    radial-gradient(circle at 50% 20%,rgba(255,199,44,.18),transparent 30%),
+    radial-gradient(circle at 20% 80%,rgba(168,85,247,.22),transparent 35%),
+    #07030f;
+  color:#f8e7c5;font-family:'Nunito',sans-serif;overflow:hidden;user-select:none;
+}
+#gameRoot{height:100vh}
+#gameTopBar{
+  height:62px;display:flex;align-items:center;justify-content:space-between;
+  padding:0 18px;background:rgba(13,5,32,.9);border-bottom:1px solid rgba(255,204,0,.16);
+  box-shadow:0 8px 30px rgba(0,0,0,.25);z-index:5;flex-shrink:0
+}
+.back-btn{color:#c084fc;text-decoration:none;font-weight:900;border:1px solid rgba(192,132,252,.35);padding:8px 12px;border-radius:12px}
+.back-btn:hover{background:rgba(168,85,247,.12)}
+.game-title-wrap{display:flex;align-items:center;gap:10px}
+.game-title-bucket{width:34px;height:34px;object-fit:contain}
+.game-title{font-family:'Fredoka One',cursive;color:#ffd166;letter-spacing:1px}
+.avatar-small{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;color:#fff;border:2px solid rgba(255,255,255,.25)}
+#wrapper{display:flex;flex:1;min-height:0;height:calc(100vh - 62px)}
+#sectionMiddle{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
+  position:relative;padding:24px;overflow:hidden;
+  background:radial-gradient(circle at center,rgba(85,29,140,.35),transparent 55%)
+}
+#versionBadge,#evolveBadge{
+  position:absolute;top:18px;padding:8px 12px;border-radius:999px;font-weight:900;
+  background:rgba(22,11,45,.82);border:1px solid rgba(255,255,255,.12);color:#ffd166
+}
+#versionBadge{left:18px}#evolveBadge{right:18px;color:#c084fc}
+#candyCounter{font-family:'Fredoka One',cursive;font-size:clamp(2.2rem,7vw,5rem);color:#ffd166;text-shadow:0 0 28px rgba(255,209,102,.45)}
+#cpsDisplay{color:#aa8f74;font-weight:800;margin:4px 0 12px}
+#statsStrip{
+  display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-bottom:22px
+}
+#statsStrip span{background:rgba(18,8,34,.78);border:1px solid rgba(255,255,255,.11);border-radius:12px;padding:8px 12px;color:#b9a58d;font-weight:800}
+#statsStrip b{color:#fff}
+#bucketWrap{
+  width:min(330px,62vw);height:min(330px,62vw);display:flex;align-items:center;justify-content:center;
+  border-radius:50%;cursor:pointer;position:relative;
+  background:radial-gradient(circle,rgba(255,209,102,.22),rgba(168,85,247,.12) 50%,transparent 72%);
+  filter:drop-shadow(0 22px 35px rgba(0,0,0,.45));
+  transition:transform .1s ease, filter .2s ease;
+}
+#bucketWrap:hover{transform:scale(1.035);filter:drop-shadow(0 24px 45px rgba(255,180,0,.25))}
+#bucketWrap.bounce{animation:bucketBounce .16s ease}
+#bucketImg{width:88%;height:88%;object-fit:contain;display:block}
+#bucketFallback{display:none;font-size:9rem}
+@keyframes bucketBounce{0%{transform:scale(1)}50%{transform:scale(.9)}100%{transform:scale(1)}}
+#comboDisplay,#goldenPopup{
+  position:absolute;left:50%;transform:translateX(-50%) scale(.8);opacity:0;pointer-events:none;
+  font-family:'Fredoka One',cursive;transition:.25s ease
+}
+#comboDisplay{bottom:86px;color:#ff7b00;font-size:1.4rem;text-shadow:0 0 16px rgba(255,123,0,.6)}
+#comboDisplay.visible{opacity:1;transform:translateX(-50%) scale(1)}
+#goldenPopup{top:110px;color:#ffd700;font-size:1.5rem;background:rgba(0,0,0,.55);padding:12px 18px;border-radius:16px;border:1px solid rgba(255,215,0,.45)}
+#goldenPopup.show{opacity:1;transform:translateX(-50%) scale(1)}
+.separator{width:4px;background:linear-gradient(#a855f7,#ffd166,#a855f7);opacity:.55}
+#sectionRight{
+  width:350px;background:rgba(13,5,32,.92);border-left:1px solid rgba(255,255,255,.08);
+  padding:18px;overflow-y:auto
+}
+#sectionRight h2{font-family:'Fredoka One',cursive;color:#ffd166;text-align:center;margin-bottom:16px}
+.shop-section{margin-bottom:18px}
+.shop-section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;border-bottom:1px solid rgba(255,255,255,.08);padding-bottom:8px}
+.shop-section h3{color:#c084fc;font-weight:900}
+.new-badge{font-size:.72rem;background:#7c3aed;color:#fff;padding:4px 8px;border-radius:999px;font-weight:900}
+.shop-item{
+  display:flex;align-items:center;gap:10px;padding:12px;margin-bottom:8px;border-radius:15px;
+  border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.035);transition:.15s ease
+}
+.shop-item.affordable{cursor:pointer;border-color:rgba(255,209,102,.32);background:rgba(255,209,102,.07)}
+.shop-item.affordable:hover{transform:translateY(-2px);background:rgba(255,209,102,.12)}
+.shop-item.locked{opacity:.55;cursor:not-allowed}
+.shop-icon{font-size:1.7rem;width:38px;text-align:center}
+.shop-info{flex:1;display:flex;flex-direction:column;text-align:left}
+.shop-info strong{color:#fff}
+.shop-desc{font-size:.78rem;color:#9b8a78}
+.shop-cost{font-size:.84rem;color:#ffd166;font-weight:900}
+.shop-owned{font-family:'Fredoka One',cursive;color:#ffd166;font-size:1.4rem;min-width:34px;text-align:center}
+#prestigeHint{font-size:.85rem;color:#8b7a9a;background:rgba(255,255,255,.035);border:1px dashed rgba(255,255,255,.12);border-radius:12px;padding:12px;text-align:center}
+#floatingContainer{position:fixed;inset:0;pointer-events:none;z-index:99}
+.float-candy{position:absolute;color:#ffd166;font-family:'Fredoka One',cursive;font-size:1.35rem;text-shadow:0 0 10px rgba(255,209,102,.7);animation:floatUp 1.2s ease-out forwards}
+.float-candy.golden{color:#ff7b00}
+@keyframes floatUp{0%{opacity:1;transform:translateY(0) scale(1)}100%{opacity:0;transform:translateY(-110px) scale(1.25)}}
+::-webkit-scrollbar{width:8px}::-webkit-scrollbar-track{background:#080311}::-webkit-scrollbar-thumb{background:#4c3575;border-radius:999px}
+@media(max-width:820px){
+  body.game-page{overflow:auto}
+  #gameRoot{height:auto;min-height:100vh}
+  #gameTopBar{position:sticky;top:0}
+  #wrapper{height:auto;min-height:calc(100vh - 62px);flex-direction:column}
+  .separator{display:none}
+  #sectionMiddle{min-height:620px}
+  #sectionRight{width:100%;border-left:0;border-top:1px solid rgba(255,255,255,.08)}
+  #versionBadge,#evolveBadge{position:static;margin:4px}
+}
