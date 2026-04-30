@@ -236,7 +236,24 @@ input,textarea,select{font-family:'Nunito',sans-serif;}
 .info-stat{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);color:var(--muted);}
 .info-stat span{color:var(--text);font-weight:700;}
 </style>
-</head>
+<script>
+window.onerror = function(msg, url, line, col, err) {
+  console.error('Error:', msg, 'at', line, ':', col);
+  return false;
+};
+document.addEventListener('DOMContentLoaded', function() {
+  console.log('Creator app loaded - checking initialization...');
+  setTimeout(function() {
+    if(typeof loadProjects !== 'undefined') {
+      console.log('loadProjects exists, initializing...');
+      loadProjects();
+      renderLibrary();
+    } else {
+      console.log('ERROR: loadProjects not defined!');
+    }
+  }, 100);
+});
+</script></head>
 <body>
 
 <!-- ===== LIBRARY SCREEN ===== -->
@@ -245,7 +262,7 @@ input,textarea,select{font-family:'Nunito',sans-serif;}
     <div class="lib-logo">🎮 <span>RAYS</span> CREAT3R</div>
     <div class="lib-actions">
       <a href="../index.html" class="btn-home">← Home</a>
-      <button class="btn-create" id="btnNewProject">+ Create New Game</button>
+      <button class="btn-create" id="btnNewProject" type="button">+ Create New Game</button>
     </div>
   </div>
   <div id="libBody">
@@ -397,6 +414,26 @@ input,textarea,select{font-family:'Nunito',sans-serif;}
     <div class="pub-actions">
       <button class="pub-btn cancel" id="cancelPublishBtn">Cancel</button>
       <button class="pub-btn confirm" id="confirmPublishBtn">🚀 Publish!</button>
+    </div>
+  </div>
+</div>
+
+<!-- New Project Modal -->
+<div id="newProjectModal" class="hidden" style="position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:800;display:flex;align-items:center;justify-content:center;">
+  <div style="background:var(--bg2);border:1px solid var(--border2);border-radius:16px;padding:28px;width:400px;max-width:94vw;">
+    <h3 style="font-family:'Fredoka One',cursive;color:var(--accent3);margin-bottom:6px;font-size:1.4em;">🎮 New Game Project</h3>
+    <p style="color:var(--muted);font-size:.88em;margin-bottom:18px;">Give your new game a name and pick an icon.</p>
+    <div style="margin-bottom:12px;">
+      <label style="font-size:.85em;color:var(--muted);display:block;margin-bottom:5px;">Game Name</label>
+      <input id="newProjectName" type="text" maxlength="40" style="width:100%;padding:11px 14px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:var(--text);outline:none;font-family:'Nunito',sans-serif;font-size:.95em;">
+    </div>
+    <div style="margin-bottom:12px;">
+      <label style="font-size:.85em;color:var(--muted);display:block;margin-bottom:5px;">Icon (emoji)</label>
+      <input id="newProjectIcon" type="text" maxlength="4" style="width:100%;padding:11px 14px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:var(--text);outline:none;font-family:'Nunito',sans-serif;font-size:1.2em;text-align:center;">
+    </div>
+    <div style="display:flex;gap:10px;margin-top:18px;">
+      <button onclick="closeNewProjectModal()" style="flex:1;padding:11px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:var(--muted);font-size:.9em;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:700;">Cancel</button>
+      <button onclick="confirmNewProject()" style="flex:1;padding:11px;background:linear-gradient(135deg,var(--accent2),var(--accent));border:none;border-radius:8px;color:#fff;font-weight:800;font-size:.9em;cursor:pointer;font-family:'Nunito',sans-serif;">🚀 Create Game</button>
     </div>
   </div>
 </div>
@@ -591,11 +628,26 @@ function renderLibrary(){
 }
 
 document.getElementById('btnNewProject').addEventListener('click',function(){
-  var name=prompt('Game name:','My Game');
-  if(!name)return;
-  var p=createProject(name);
-  openProject(p.id);
+  openNewProjectModal();
 });
+
+function openNewProjectModal(){
+  document.getElementById('newProjectName').value='My Game';
+  document.getElementById('newProjectIcon').value='🎮';
+  document.getElementById('newProjectModal').classList.remove('hidden');
+  setTimeout(function(){var inp=document.getElementById('newProjectName');inp.focus();inp.select();},50);
+}
+function closeNewProjectModal(){document.getElementById('newProjectModal').classList.add('hidden');}
+function confirmNewProject(){
+  var name=document.getElementById('newProjectName').value.trim();
+  var icon=document.getElementById('newProjectIcon').value.trim()||'🎮';
+  if(!name){document.getElementById('newProjectName').focus();return;}
+  var p=createProject(name);
+  p.icon=icon;
+  saveProjects();
+  closeNewProjectModal();
+  openProject(p.id);
+}
 
 function escH(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 
@@ -683,8 +735,7 @@ function renderSidebar(){
 // Add scene
 document.getElementById('addSceneBtn').addEventListener('click',function(){
   if(!currentProject)return;
-  var name=prompt('Scene name:','Scene '+(currentProject.scenes.length+1));
-  if(!name)return;
+  var name='Scene '+(currentProject.scenes.length+1);
   var s={id:uid(),name:name,blocks:[]};
   currentProject.scenes.push(s);
   saveProjects();renderSidebar();openSceneTab(s.id);
@@ -1079,7 +1130,24 @@ function buildGameHTML(scene){
     '<style>*{margin:0;padding:0;box-sizing:border-box;}body{background:'+bg+';font-family:Nunito,sans-serif;width:100%;height:100vh;overflow:hidden;position:relative;color:#fff;}'+
     '.game-elem{position:absolute;cursor:default;}.game-btn{cursor:pointer;padding:12px 24px;border:none;border-radius:8px;font-size:1em;font-weight:700;font-family:inherit;}.game-counter{text-align:center;font-size:1.5em;font-weight:800;}.game-input{padding:8px 12px;border:2px solid rgba(255,255,255,.3);border-radius:6px;background:rgba(255,255,255,.1);color:#fff;font-size:1em;}.progress-wrap{height:20px;background:rgba(255,255,255,.1);border-radius:10px;overflow:hidden;}.progress-fill{height:100%;border-radius:10px;transition:width .3s;}</style>'+
     '<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">'+
-    '</head><body>';
+    '<script>
+window.onerror = function(msg, url, line, col, err) {
+  console.error('Error:', msg, 'at', line, ':', col);
+  return false;
+};
+document.addEventListener('DOMContentLoaded', function() {
+  console.log('Creator app loaded - checking initialization...');
+  setTimeout(function() {
+    if(typeof loadProjects !== 'undefined') {
+      console.log('loadProjects exists, initializing...');
+      loadProjects();
+      renderLibrary();
+    } else {
+      console.log('ERROR: loadProjects not defined!');
+    }
+  }, 100);
+});
+</script></head><body>';
   // Variables
   var vars={};
   blocks.filter(function(b){return b.type==='variable'||b.type==='score';}).forEach(function(b){
@@ -1174,6 +1242,29 @@ document.getElementById('confirmPublishBtn').addEventListener('click',function()
 // ====== INIT ======
 loadProjects();
 renderLibrary();
+
+// Wire up Enter key for new project modal + click-outside-to-close
+(function(){
+  var nameInp=document.getElementById('newProjectName');
+  var iconInp=document.getElementById('newProjectIcon');
+  if(nameInp){
+    nameInp.addEventListener('keydown',function(e){
+      if(e.key==='Enter'){e.preventDefault();confirmNewProject();}
+      if(e.key==='Escape')closeNewProjectModal();
+    });
+  }
+  if(iconInp){
+    iconInp.addEventListener('keydown',function(e){
+      if(e.key==='Enter'){e.preventDefault();confirmNewProject();}
+      if(e.key==='Escape')closeNewProjectModal();
+    });
+  }
+  var modal=document.getElementById('newProjectModal');
+  if(modal){
+    modal.addEventListener('click',function(e){if(e.target===modal)closeNewProjectModal();});
+  }
+})();
+
 // Handle hash for library link
 if(window.location.hash==='#library'){
   document.getElementById('libraryScreen').classList.remove('hidden');

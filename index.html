@@ -9,7 +9,7 @@
 </head>
 <body>
 
-<!-- SETUP -->
+<!-- ================= SETUP (CREATE ACCOUNT) ================= -->
 <div id="setupScreen" class="screen hidden">
   <div class="setup-box">
     <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:8px;">
@@ -18,26 +18,41 @@
     </div>
     <p>Create games. Publish them. Let the world play.</p>
     <input type="text" id="setupName" placeholder="Choose a username..." maxlength="20" autocomplete="off">
+    <input type="password" id="setupPwd" placeholder="Choose a password..." maxlength="40" autocomplete="new-password">
+    <p id="setupError" class="error-msg hidden" style="margin-bottom:8px;"></p>
     <button id="setupBtn" class="btn-primary">Create Account 🚀</button>
     <div class="setup-divider">already have an account?</div>
-    <button id="showLoginBtn" class="btn-secondary">🔑 Log In With Key</button>
+    <button id="showLoginBtn" class="btn-secondary">🔑 Log In</button>
   </div>
 </div>
 
-<!-- LOGIN -->
+<!-- ================= LOGIN ================= -->
 <div id="loginScreen" class="screen hidden">
   <div class="setup-box">
     <h1 style="font-family:'Fredoka One',cursive;color:#c084fc;font-size:1.8em;margin-bottom:8px;">🔑 Log In</h1>
-    <p>Enter your username and paste your account key.</p>
-    <input type="text" id="loginName" placeholder="Your username..." maxlength="20" autocomplete="off">
-    <textarea id="loginKey" placeholder="Paste your account key here..." rows="4" style="resize:none;"></textarea>
-    <button id="loginBtn" class="btn-primary">Log In</button>
-    <button id="backToSetupBtn" class="btn-secondary">← Back</button>
+    <p id="loginSub">Enter your username and paste your account key.</p>
+    <input type="text" id="loginName" placeholder="Username..." maxlength="20" autocomplete="username">
+
+    <!-- KEY MODE -->
+    <div id="loginKeyMode">
+      <textarea id="loginKey" placeholder="Paste your account key here..." rows="4" style="resize:none;"></textarea>
+      <button id="loginBtn" class="btn-primary">Log In With Key</button>
+      <button id="switchToPwdBtn" class="btn-secondary">Don't have a key?</button>
+    </div>
+
+    <!-- PASSWORD MODE -->
+    <div id="loginPwdMode" class="hidden">
+      <input type="password" id="loginPwd" placeholder="Password..." maxlength="40" autocomplete="current-password">
+      <button id="loginPwdBtn" class="btn-primary">Log In With Password</button>
+      <button id="switchToKeyBtn" class="btn-secondary">I have a key</button>
+    </div>
+
+    <button id="backToSetupBtn" class="btn-secondary" style="margin-top:8px;">← Back</button>
     <p id="loginError" class="error-msg hidden"></p>
   </div>
 </div>
 
-<!-- HOME -->
+<!-- ================= HOME ================= -->
 <div id="homeScreen" class="screen hidden">
   <div id="topBar">
     <div class="logo-wrap">
@@ -45,7 +60,7 @@
       <h1 class="logo"><span>RAYS</span> <b>CREAT3R</b></h1>
     </div>
     <div id="topBarRight">
-      <a href="creator/index.html" class="create-btn">+ Create</a>
+      <button id="createBtn" class="create-btn" type="button">+ Create</button>
       <a href="PlayerData/viewer.html" class="create-btn" style="background:rgba(255,255,255,.07);border:1px solid #30363d;">🗂️ My Data</a>
       <div id="profileBtn"><div id="profileAvatar"></div></div>
     </div>
@@ -68,7 +83,7 @@
       <p class="key-label">Your Account Key — save this!</p>
       <textarea id="keyText" readonly rows="5"></textarea>
       <button id="copyKeyBtn" class="btn-small">📋 Copy Key</button>
-      <p class="key-hint">This key holds your profile, all saves, and all projects. Paste it on any browser to restore everything.</p>
+      <p class="key-hint">This key holds your profile + saves + projects. Paste on any browser to restore everything.</p>
     </div>
   </div>
 
@@ -79,8 +94,8 @@
       <div class="hero-title" id="heroTitle">Build. Publish.<br>Play.</div>
       <div class="hero-sub" id="heroSub">Create your own games with visual code blocks and pixel art — no experience needed.</div>
       <div class="hero-actions">
-        <a href="creator/index.html" class="hero-btn-primary">+ Create a Game</a>
-        <a href="creator/index.html" class="hero-btn-secondary">📚 My Library</a>
+        <button id="heroCreateBtn" class="hero-btn-primary" type="button">+ Create a Game</button>
+        <button id="heroLibraryBtn" class="hero-btn-secondary" type="button">📚 My Library</button>
       </div>
     </div>
   </div>
@@ -100,7 +115,7 @@
     <div class="game-grid" id="communityGrid">
       <div class="empty-games" id="emptyGames">
         <div class="empty-icon">🎮</div>
-        <p>No community games yet.<br><a href="creator/index.html" style="color:#a855f7;">Be the first!</a></p>
+        <p>No community games yet.<br><a href="#" id="emptyCreateLink" style="color:#a855f7;">Be the first!</a></p>
       </div>
     </div>
   </div>
@@ -118,9 +133,28 @@
 function setAv(el,name){var l=(name||"?").charAt(0).toUpperCase();el.textContent=l;el.style.background=RC.avatarColor(name);}
 function escH(s){return(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
 
-function showSetup(){document.getElementById("setupScreen").classList.remove("hidden");}
-function showLogin(){document.getElementById("loginScreen").classList.remove("hidden");document.getElementById("setupScreen").classList.add("hidden");}
 function hideAll(){["setupScreen","loginScreen","homeScreen"].forEach(function(id){document.getElementById(id).classList.add("hidden");});}
+function showSetup(){hideAll();document.getElementById("setupScreen").classList.remove("hidden");document.getElementById("setupName").focus();}
+function showLogin(prefilledName){
+  hideAll();
+  document.getElementById("loginScreen").classList.remove("hidden");
+  if(prefilledName)document.getElementById("loginName").value=prefilledName;
+  // Default to KEY mode unless local account exists (then PWD mode is more useful)
+  if(RC.hasLocalAccount())switchToPwdMode();else switchToKeyMode();
+  document.getElementById("loginError").classList.add("hidden");
+}
+
+function switchToPwdMode(){
+  document.getElementById("loginKeyMode").classList.add("hidden");
+  document.getElementById("loginPwdMode").classList.remove("hidden");
+  document.getElementById("loginSub").textContent="Enter your username and password.";
+  document.getElementById("loginPwd").focus();
+}
+function switchToKeyMode(){
+  document.getElementById("loginPwdMode").classList.add("hidden");
+  document.getElementById("loginKeyMode").classList.remove("hidden");
+  document.getElementById("loginSub").textContent="Enter your username and paste your account key.";
+}
 
 function showHome(user,isReturn){
   hideAll();
@@ -128,17 +162,13 @@ function showHome(user,isReturn){
   setAv(document.getElementById("profileAvatar"),user.name);
   setAv(document.getElementById("dropdownAvatar"),user.name);
   document.getElementById("profileName").textContent=user.name;
-  // Session info in dropdown
   var sess=RC.getSession();
   if(sess){document.getElementById("visitLabel").textContent="Visit #"+(sess.visitCount||1);}
-  // Personalise hero if returning
   if(isReturn){
-    document.getElementById("heroTitle").textContent="Welcome back,\n"+user.name+"!";
+    document.getElementById("heroTitle").textContent="Welcome back, "+user.name+"!";
     showWelcomeToast(user,sess);
   }
-  // Show correct bucket stage from candy save
   updateHomeBucket();
-  // Community games
   loadCommunityGames();
 }
 
@@ -163,8 +193,7 @@ function showWelcomeToast(user,sess){
   var msg="👋 Welcome back, "+user.name+"!";
   var sub="";
   if(sess){
-    var last=sess.lastVisit;
-    if(last){var diff=Date.now()-last;var mins=Math.floor(diff/60000);
+    if(sess.lastVisit){var diff=Date.now()-sess.lastVisit;var mins=Math.floor(diff/60000);
       if(mins<60)sub="Away for "+mins+" minutes";
       else if(mins<1440)sub="Away for "+Math.floor(mins/60)+" hours";
       else sub="Away for "+Math.floor(mins/1440)+" days";}
@@ -184,17 +213,20 @@ function loadCommunityGames(){
   if(pubs.length===0){empty.style.display="block";return;}
   empty.style.display="none";
   pubs.forEach(function(g){
-    var tile=document.createElement("a");tile.href="creator/index.html#play_"+g.id;tile.className="game-tile";
-    tile.innerHTML='<div class="tile-thumb tile-thumb-user" style="background:#1a1030;font-size:4em;">'+escH(g.icon||"🎮")+'</div>'+
+    var tile=document.createElement("a");
+    tile.href="creator/index.html#play_"+g.id;
+    tile.className="game-tile";
+    tile.innerHTML='<div class="tile-thumb tile-thumb-user" style="background:#1a1030;font-size:4em;display:flex;align-items:center;justify-content:center;">'+escH(g.icon||"🎮")+'</div>'+
       '<div class="tile-body"><div class="tile-name-row"><span class="tile-name">'+escH(g.name)+'</span><span class="tile-badge badge-new">NEW</span></div>'+
       '<div class="tile-meta"><span class="tile-author">by '+escH(g.author||"Creator")+'</span></div></div>';
     grid.insertBefore(tile,empty);
   });
 }
 
+// ── Auto-login on every page load if isLoggedIn() ─────────────
 function init(){
-  var user=RC.getUser();
-  if(user){
+  if(RC.isLoggedIn()){
+    var user=RC.getUser();
     RC.touchUser();
     RC.startSession();
     var sess=RC.getSession();
@@ -202,37 +234,71 @@ function init(){
     showHome(user,isReturn);
     if(sess&&sess.visitCount>=10)RC.unlockAchievement("visitor_10");
     if(sess&&sess.totalPlayTime>=3600)RC.unlockAchievement("playtime_1h");
+  } else if(RC.hasLocalAccount()){
+    // Account exists but logged out — go to login screen with name pre-filled
+    var u=RC.getUser();
+    showLogin(u.name);
   } else {
     showSetup();
   }
 }
 
-// Setup
-document.getElementById("setupBtn").addEventListener("click",function(){
+// ── SETUP ─────────────────────────────────────────────────────
+function doSetup(){
   var n=document.getElementById("setupName").value.trim();
-  if(!n){document.getElementById("setupName").focus();return;}
-  RC.setUser(n);RC.startSession();showHome(RC.getUser(),false);
-});
-document.getElementById("setupName").addEventListener("keydown",function(e){if(e.key==="Enter")document.getElementById("setupBtn").click();});
-document.getElementById("showLoginBtn").addEventListener("click",showLogin);
+  var pw=document.getElementById("setupPwd").value;
+  var err=document.getElementById("setupError");
+  err.classList.add("hidden");
+  if(!n){err.textContent="Pick a username first.";err.classList.remove("hidden");document.getElementById("setupName").focus();return;}
+  if(!pw||pw.length<3){err.textContent="Password needs at least 3 characters.";err.classList.remove("hidden");document.getElementById("setupPwd").focus();return;}
+  RC.setUser(n,pw);
+  RC.startSession();
+  showHome(RC.getUser(),false);
+}
+document.getElementById("setupBtn").addEventListener("click",doSetup);
+document.getElementById("setupName").addEventListener("keydown",function(e){if(e.key==="Enter")document.getElementById("setupPwd").focus();});
+document.getElementById("setupPwd").addEventListener("keydown",function(e){if(e.key==="Enter")doSetup();});
+document.getElementById("showLoginBtn").addEventListener("click",function(){showLogin();});
 
-// Login
+// ── LOGIN: KEY MODE ───────────────────────────────────────────
 document.getElementById("loginBtn").addEventListener("click",function(){
   var n=document.getElementById("loginName").value.trim();
   var k=document.getElementById("loginKey").value.trim();
+  var err=document.getElementById("loginError");
+  err.classList.add("hidden");
   if(!n){document.getElementById("loginName").focus();return;}
-  if(!k){document.getElementById("loginKey").focus();return;}
+  if(!k){err.textContent="Paste your account key, or use 'Don't have a key?' instead.";err.classList.remove("hidden");return;}
   var r=RC.importKey(n,k);
   if(r.ok){RC.startSession();showHome(r.user,true);}
-  else{document.getElementById("loginError").textContent=r.msg;document.getElementById("loginError").classList.remove("hidden");}
-});
-document.getElementById("backToSetupBtn").addEventListener("click",function(){
-  document.getElementById("loginError").classList.add("hidden");
-  document.getElementById("loginScreen").classList.add("hidden");
-  document.getElementById("setupScreen").classList.remove("hidden");
+  else{err.textContent=r.msg;err.classList.remove("hidden");}
 });
 
-// Profile
+// ── LOGIN: PASSWORD MODE ──────────────────────────────────────
+document.getElementById("loginPwdBtn").addEventListener("click",function(){
+  var n=document.getElementById("loginName").value.trim();
+  var pw=document.getElementById("loginPwd").value;
+  var err=document.getElementById("loginError");
+  err.classList.add("hidden");
+  if(!n){document.getElementById("loginName").focus();return;}
+  if(!pw){document.getElementById("loginPwd").focus();return;}
+  var r=RC.loginWithPassword(n,pw);
+  if(r.ok){RC.startSession();showHome(r.user,true);}
+  else{err.textContent=r.msg;err.classList.remove("hidden");}
+});
+document.getElementById("loginPwd").addEventListener("keydown",function(e){if(e.key==="Enter")document.getElementById("loginPwdBtn").click();});
+document.getElementById("loginName").addEventListener("keydown",function(e){
+  if(e.key==="Enter"){
+    var inPwdMode=!document.getElementById("loginPwdMode").classList.contains("hidden");
+    if(inPwdMode)document.getElementById("loginPwd").focus();
+    else document.getElementById("loginKey").focus();
+  }
+});
+
+document.getElementById("switchToPwdBtn").addEventListener("click",switchToPwdMode);
+document.getElementById("switchToKeyBtn").addEventListener("click",switchToKeyMode);
+document.getElementById("backToSetupBtn").addEventListener("click",showSetup);
+
+// ── PROFILE DROPDOWN ──────────────────────────────────────────
 document.getElementById("profileBtn").addEventListener("click",function(e){
   e.stopPropagation();
   document.getElementById("profileDropdown").classList.toggle("hidden");
@@ -256,10 +322,20 @@ document.getElementById("copyKeyBtn").addEventListener("click",function(){
   }).catch(function(){try{kt.select();document.execCommand("copy");}catch(e){}});
 });
 document.getElementById("logoutBtn").addEventListener("click",function(){
-  if(confirm("Log out? Make sure you've saved your key first!")){
-    RC.logout();hideAll();showSetup();
+  if(confirm("Log out? Your data stays — sign back in with your password anytime.")){
+    RC.logout();
+    var u=RC.getUser();
+    if(u)showLogin(u.name);else showSetup();
   }
 });
+
+// ── + CREATE BUTTONS (all routes to creator) ──────────────────
+function goToCreator(){window.location.href="creator/index.html";}
+document.getElementById("createBtn").addEventListener("click",goToCreator);
+document.getElementById("heroCreateBtn").addEventListener("click",goToCreator);
+document.getElementById("heroLibraryBtn").addEventListener("click",goToCreator);
+var emptyLink=document.getElementById("emptyCreateLink");
+if(emptyLink)emptyLink.addEventListener("click",function(e){e.preventDefault();goToCreator();});
 
 init();
 </script>
