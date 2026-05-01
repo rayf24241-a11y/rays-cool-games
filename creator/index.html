@@ -299,13 +299,27 @@ input,textarea,select{font-family:'Nunito',sans-serif;}
 .pub-btn.cancel{background:var(--bg3);border:1px solid var(--border2);color:var(--muted);}
 .pub-btn.cancel:hover{border-color:var(--border2);color:var(--text);}
 
-/* right panel */
-#edRight{width:0;background:var(--bg2);border-left:1px solid var(--border);overflow:hidden;transition:width .2s;}
-#edRight.open{width:240px;}
+/* right panel - VS Code style secondary sidebar */
+#edRight{width:0;background:var(--panel);border-left:1px solid var(--border);overflow:hidden;transition:width .25s;flex-shrink:0;display:flex;flex-direction:column;}
+#edRight.open{width:300px;}
+#edRightHeader{padding:8px 12px;background:var(--bg2);border-bottom:1px solid var(--border);font-size:.85em;font-weight:600;color:var(--muted);display:flex;align-items:center;justify-content:space-between;}
+.right-panel-content{flex:1;overflow-y:auto;padding:8px;}
 .info-panel{padding:14px;font-size:.83em;}
 .info-panel h4{font-family:'Fredoka One',cursive;font-size:1em;color:var(--accent3);margin-bottom:12px;}
 .info-stat{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);color:var(--muted);}
 .info-stat span{color:var(--text);font-weight:700;}
+
+/* File preview in right panel */
+.file-preview-item{padding:6px 8px;margin:2px 0;border-radius:4px;cursor:pointer;font-size:.8em;display:flex;align-items:center;gap:6px;transition:all .15s;}
+.file-preview-item:hover{background:var(--bg3);}
+.file-preview-item.active{background:var(--accent);color:#fff;}
+.file-preview-icon{font-size:1.1em;}
+.file-preview-name{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.file-preview-del{opacity:0;font-size:.8em;padding:2px 4px;border-radius:3px;}
+.file-preview-item:hover .file-preview-del{opacity:1;}
+.file-preview-del:hover{background:var(--red);color:#fff;}
+.quick-file-btn{width:100%;padding:8px;margin:4px 0;background:var(--bg3);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:.75em;cursor:pointer;transition:all .15s;}
+.quick-file-btn:hover{background:var(--accent);color:#fff;border-color:var(--accent);}
 </style>
 <script>
 window.onerror = function(msg, url, line, col, err) {
@@ -465,18 +479,46 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
           </div>
         </div>
-        <!-- Right info panel -->
-        <div id="edRight">
-          <div class="info-panel">
-            <h4>Game Info</h4>
-            <div class="info-stat">Scenes <span id="infoScenes">0</span></div>
-            <div class="info-stat">Characters <span id="infoChars">0</span></div>
-            <div class="info-stat">Code Blocks <span id="infoBlocks">0</span></div>
-            <div class="info-stat">Costumes <span id="infoCostumes">0</span></div>
-            <br>
-            <h4>Block Types</h4>
-            <div style="font-size:.75em;color:var(--muted);line-height:1.8;">
-              📺 Scene BG<br>✏️ Text<br>🔢 Counter<br>🖱️ Button<br>🧍 Sprite<br>📥 Input<br>📊 Progress Bar<br>⏱️ Timer<br>🔢 Variable<br>🏆 Score<br>👆 On Click<br>🔁 On Timer<br>⌨️ On Key<br>📡 On Value Change<br>❓ If Condition<br>🔄 Loop<br>➕ Change Value<br>🎭 Next Costume<br>👁️ Show/Hide<br>🔊 Play Sound
+        <!-- Right panel - File explorer & quick actions -->
+        <div id="edRight" class="open">
+          <div id="edRightHeader">
+            <span>FILES & QUICK CODE</span>
+            <span style="cursor:pointer;" id="toggleRightPanel">✕</span>
+          </div>
+          <div class="right-panel-content">
+            <!-- Quick Code Shortcuts -->
+            <div style="padding:8px;border-bottom:1px solid var(--border);">
+              <div style="font-size:.7em;font-weight:600;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px;">Quick Code</div>
+              <button class="quick-file-btn" onclick="quickCode('text-red Hello!')">text-red Hello!</button>
+              <button class="quick-file-btn" onclick="quickCode('button-blue Click me!')">button-blue Click me!</button>
+              <button class="quick-file-btn" onclick="quickCode('div-green Box')">div-green Box</button>
+              <button class="quick-file-btn" onclick="quickCode('h1-yellow Title')">h1-yellow Title</button>
+            </div>
+
+            <!-- File List -->
+            <div style="padding:8px;">
+              <div style="font-size:.7em;font-weight:600;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px;">Project Files</div>
+              <div id="rightPanelFiles"></div>
+            </div>
+
+            <!-- Game Info -->
+            <div class="info-panel" style="border-top:1px solid var(--border);margin-top:10px;padding-top:10px;">
+              <h4 style="font-size:.9em;margin-bottom:8px;">📊 Project Stats</h4>
+              <div class="info-stat">Scenes <span id="infoScenes">0</span></div>
+              <div class="info-stat">Characters <span id="infoChars">0</span></div>
+              <div class="info-stat">Code Blocks <span id="infoBlocks">0</span></div>
+              <div class="info-stat">Costumes <span id="infoCostumes">0</span></div>
+              <div class="info-stat">Files <span id="infoFiles">0</span></div>
+            </div>
+
+            <!-- AI Suggestions -->
+            <div style="padding:8px;border-top:1px solid var(--border);margin-top:10px;">
+              <div style="font-size:.7em;font-weight:600;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px;">💡 AI Suggestions</div>
+              <div id="aiSuggestions" style="font-size:.75em;color:var(--dim);line-height:1.6;">
+                Try: "make snake game"<br>
+                Try: "add red button"<br>
+                Try: "text-blue Welcome!"
+              </div>
             </div>
           </div>
         </div>
@@ -1872,7 +1914,42 @@ function aiDo(msg){
   if(/^(hi|hello|hey|yo|sup|howdy|greetings)\b/.test(ml))return 'Yo! I\'m your Creator AI. I can build games, write code, manage files, create art, debug errors, and much more. Try "make rpg" or "create snake game"!';
   if(/who are you|what are you|introduce yourself/.test(ml))return 'I\'m Creator AI v2.0 — a local AI that runs entirely in your browser. I can: create/delete files, generate complete games (RPG, FPS, platformer, puzzle, etc.), write HTML/CSS/JS, fix bugs, refactor code, create characters, manage scenes, and even give you game design advice. No internet required!';
   if(/what can you do|help me|commands|capabilities/.test(ml)){
-    return '🎮 **GAME CREATION**: make rpg, make fps, make platformer, make snake, make tetris, make pong, make flappy, make clicker, make racer\n📁 **FILES**: create file X, delete file X, list files, rename X to Y, copy X to Y, search for X, replace X with Y\n💻 **CODE**: add CSS, add JavaScript, fix bugs, refactor, optimize, add animation, add particles, add sound\n🎨 **ART**: create character, make pixel art, generate palette, create animation\n🧹 **CLEANUP**: delete all files, clear project, organize files\nJust ask naturally — "make a Mario-style platformer" or "add a scoring system"!';
+    return '🎮 **GAME CREATION**: make rpg, make fps, make platformer, make snake, make tetris, make pong, make flappy, make clicker, make racer\n📁 **FILES**: create file X, delete file X, list files, rename X to Y, copy X to Y, search for X, replace X with Y\n💻 **CODE**: add CSS, add JavaScript, fix bugs, refactor, optimize, add animation, add particles, add sound\n⚡ **QUICK CODE**: text-red Hello! | button-blue Click! | div-green Box | h1-yellow Title | center Hello | big WOW | card Content\n🎨 **ART**: create character, make pixel art, generate palette, create animation\n🧹 **CLEANUP**: delete all files, clear project, organize files\nJust ask naturally — "make a Mario-style platformer" or "add red text saying Hello"!';
+  }
+
+  // ===== QUICK CODE / SHORTHAND PARSING =====
+  // Pattern: element-color text! OR just quick element
+  var shorthandMatch=m.match(/^(text|p|span|h1|h2|h3|h4|button|div|box|input|card|center|big|small|bold|italic|link|color|bg|flex|grid|emoji|alert|progress)[\s-](.+)$/i);
+  if(shorthandMatch||/^(add|create|make|insert)\s+(red|blue|green|yellow|purple|orange)\s+(text|button|box|div)/.test(mlCore)){
+    var shorthandInput=m.replace(/^(add|create|make|insert)\s+/i,'');
+    quickCode(shorthandInput);
+    aiLastAction='quick code';
+    return '📝 Created quick code: `'+shorthandInput+'`. Check your file!';
+  }
+  // Handle "text red Jimmy!" (natural language version)
+  var naturalShorthand=m.match(/(?:add|create|make|insert)?\s*(?:a\s+)?(red|blue|green|yellow|purple|orange|pink|cyan|white|black|gray)\s+(text|button|div|box|h1|h2|span|p)\s+(?:saying|that says|with text|containing)?\s*["']?([^"']+)["']?/i);
+  if(naturalShorthand){
+    var color=naturalShorthand[1];var element=naturalShorthand[2];var text=naturalShorthand[3];
+    var quickInput=element+'-'+color+' '+text;
+    quickCode(quickInput);
+    aiLastAction='quick code';
+    return '📝 Created '+color+' '+element+' saying "'+text+'"!';
+  }
+  // Handle "add a button that says Click me"
+  var buttonMatch=m.match(/(?:add|create|make)\s+(?:a\s+)?(red|blue|green|yellow|purple|orange|pink)?\s*button\s+(?:that says|saying|with text|labeled)?\s*["']?([^"']+)["']?/i);
+  if(buttonMatch){
+    var btnColor=buttonMatch[1]||'blue';var btnText=buttonMatch[2];
+    quickCode('button-'+btnColor+' '+btnText);
+    aiLastAction='quick code';
+    return '🎉 Created a '+btnColor+' button saying "'+btnText+'"!';
+  }
+  // Handle "add red text saying Hello"
+  var textMatch=m.match(/(?:add|create|make)\s+(?:a\s+)?(red|blue|green|yellow|purple|orange|pink|cyan|white|black|gray)\s+text\s+(?:saying|that says|with)?\s*["']?([^"']+)["']?/i);
+  if(textMatch){
+    var txtColor=textMatch[1];var txtText=textMatch[2];
+    quickCode('text-'+txtColor+' '+txtText);
+    aiLastAction='quick code';
+    return '📝 Added '+txtColor+' text saying "'+txtText+'"!';
   }
 
   // ===== SETTINGS & UTILITIES =====
@@ -2281,20 +2358,54 @@ function aiDo(msg){
   if(/player move|movement|wasd/.test(ml)){
     return 'Use this in game.js:\ndocument.addEventListener("keydown",function(e){var p=document.getElementById("player");if(!p)return;var s=10;var x=p.offsetLeft,y=p.offsetTop;if(e.key==="w"||e.key==="ArrowUp")y-=s;if(e.key==="s"||e.key==="ArrowDown")y+=s;if(e.key==="a"||e.key==="ArrowLeft")x-=s;if(e.key==="d"||e.key==="ArrowRight")x+=s;p.style.left=x+"px";p.style.top=y+"px";});';
   }
-  if(/help|commands|what can you do/.test(ml)){
-    return 'I can: create/delete files, create folders, list files, generate starter game files, create a Dino character, and edit current file text. Try: "create file scenes/level1.html" or "make starter game with dino".';
+  // ===== CONVERSATIONAL & CONTEXT AWARENESS =====
+  if(/thank|thanks|thx|ty/.test(ml))return 'You\'re welcome! 🎮 Happy game making!';
+  if(/bye|goodbye|see ya|cya|later/.test(ml))return 'See ya! Save your work! 👋';
+  if(/good job|well done|nice|awesome|great/.test(ml))return '😊 Thanks! I\'m here to help you build amazing games!';
+  if(/bad|terrible|awful|hate/.test(ml))return '😅 Let me know what went wrong and I\'ll fix it! Say "help" for commands.';
+  if(/how.*going|how are you|what.*up/.test(ml))return 'I\'m running at full speed and ready to build! What game are we making today?';
+  if(/what.*time|what.*date|current.*time/.test(ml))return '🕐 Current time: '+new Date().toLocaleTimeString()+' | Date: '+new Date().toLocaleDateString();
+  if(/joke|funny|humor/.test(ml))return 'Why do programmers prefer dark mode? Because light attracts bugs! 🐛😄';
+  if(/tip|advice|suggestion/.test(ml))return '💡 Pro tip: Start with a simple game mechanic, test it, then add features. Try "make pong" for a classic starter!';
+  if(/inspire|motivate|encourage/.test(ml))return '🌟 Every game developer started somewhere. Your ideas are worth building! Just say "make platformer" and see what happens!';
+  if(/stuck|stuck|confused|lost|dont know/.test(ml))return '🤔 No worries! Try: "help" for commands, "make [game type]" for templates, or "text-red Hello!" for quick code. What are you trying to build?';
+  if(/example|show me|demo/.test(ml))return 'Want examples? Try: "make snake" (classic), "button-blue Start!" (quick UI), or "make rpg" (complex). What interests you?';
+
+  // ===== SMART FALLBACK - CONTEXT AWARE =====
+  // Check if user mentioned colors + elements
+  var colorMatch=ml.match(/\b(red|blue|green|yellow|purple|orange|pink|cyan|white|black|gray)\b/);
+  var elementMatch=ml.match(/\b(text|button|div|box|h1|h2|span|p|input)\b/);
+  if(colorMatch&&elementMatch){
+    return '💡 Want to add '+colorMatch[1]+' '+elementMatch[1]+'? Try: "'+elementMatch[1]+'-'+colorMatch[1]+' Your text here!" or "add '+colorMatch[1]+' '+elementMatch[1]+' saying Hello!"';
+  }
+  // Check if asking about games
+  if(/game|play|fun|entertainment/.test(ml)){
+    return '🎮 I can make: snake, tetris, pong, flappy bird, platformer, racer, rpg, shooter, fighter, tower defense, clicker! Just say "make [game]"!';
+  }
+  // Check if asking about files
+  if(/file|document|code|script/.test(ml)){
+    return '📁 File commands: "create file main.html", "list files", "delete file X", "make css". What do you need?';
+  }
+  // Check if asking about design/appearance
+  if(/color|style|look|design|pretty|beautiful/.test(ml)){
+    return '🎨 Quick styling: "text-red Hello", "button-blue Click me", "div-green Box", "center", "big", "card"! Try one!';
   }
 
+  // Ultimate fallback - always helpful
   var fallback=[
-    'Done thinking. I can act right now: say "make it say hi", "delete all files", or "make starter game".',
-    'I can handle broad requests. Try: "make platformer", "clean up project", or "improve game".',
-    'Say what outcome you want and I will build it directly.',
-    'I am ready. Example: "make a playable starter game and center title text".'
+    'I understand! Try: "make snake", "text-red Hello!", "button-blue Start!", or "help" for all commands.',
+    'Got it! Say "make platformer" for a game, or "add red text Hi" for quick code.',
+    'Sure thing! Quick options: "make [game]" | "text-[color] [text]" | "button-[color] [text]" | "help"',
+    'Alright! I can make games, write code, or chat. Try: "make tetris", "text-green Welcome!", or "what can you do?"',
+    'Understood! 🎮 Game templates: snake, pong, flappy, rpg. 💻 Quick code: "text-blue Hello!" | "button-red Click!"',
+    'I\'m listening! Say something like: "make a racing game" or "add purple button Play" or "what files do I have?"',
+    'Ready! 🎯 Try: "make clicker" (idle game) | "text-yellow Score!" (quick text) | "list files" (view files)',
+    'Gotcha! I\'m your AI game dev partner. Commands: "make [game]" | "[element]-[color] [text]" | "create file X.html"'
   ];
-  var out=fallback[aiFallbackIndex%fallback.length];
-  aiFallbackIndex++;
+  // Pick based on message length for variety
+  var fallbackIndex=m.length%fallback.length;
   aiLastAction='answered';
-  return out;
+  return fallback[fallbackIndex];
 }
 
 function openAiModal(){
@@ -2572,6 +2683,104 @@ setInterval(function(){
     if(ed){var text=ed.value.substring(0,ed.selectionStart);var lines=text.split('\n');cursorEl.textContent='Ln '+lines.length+', Col '+(lines[lines.length-1].length+1);}
   }
 },1000);
+
+// ====== QUICK CODE SYSTEM - Shorthand coding ======
+function quickCode(shorthand){
+  if(!currentProject)return alert('Open a project first!');
+  var code=parseShorthand(shorthand);
+  var targetFile=getActiveFile()||findNodeByName('main.admin','file');
+  if(!targetFile){
+    var r=createFileByPath('main.admin','');
+    if(r.ok)targetFile=r.file;
+  }
+  if(targetFile){
+    targetFile.content=targetFile.content||'';
+    if(targetFile.content&&!targetFile.content.endsWith('\n'))targetFile.content+='\n';
+    targetFile.content+=code+'\n';
+    saveProjects();openCodeFile(targetFile.id);
+    showToast('✅ Added: '+shorthand);
+    aiAppend('bot','📝 Quick code added: `'+shorthand+'` → `'+code.replace(/</g,'&lt;').replace(/>/g,'&gt;').substring(0,50)+'...`');
+  }
+}
+
+function parseShorthand(shorthand){
+  // Pattern: element-color text!
+  // Examples: text-red Hello! | button-blue Click! | div-green Box | h1-yellow Title
+  var patterns=[
+    {regex:/^(text|p|span)-(\w+)\s+(.+)$/i,template:'<$1 style="color:$2;">$3</$1>'},
+    {regex:/^(h1|h2|h3|h4|h5|h6)-(\w+)\s+(.+)$/i,template:'<$1 style="color:$2;">$3</$1>'},
+    {regex:/^(button)-(\w+)\s+(.+)$/i,template:'<button style="background:$2;color:#fff;padding:10px 20px;border:none;border-radius:6px;cursor:pointer;">$3</button>'},
+    {regex:/^(div|box)-(\w+)\s+(.+)$/i,template:'<div style="background:$2;color:#fff;padding:20px;border-radius:8px;margin:10px 0;">$3</div>'},
+    {regex:/^(input)-(\w+)\s*(.*)$/i,template:'<input type="text" placeholder="$3" style="border:2px solid $2;padding:10px;border-radius:6px;">'},
+    {regex:/^(img|image)-(\w+)\s+(.+)$/i,template:'<img src="$3" style="border:3px solid $2;border-radius:8px;max-width:200px;">'},
+    {regex:/^center\s+(.+)$/i,template:'<div style="text-align:center;">$1</div>'},
+    {regex:/^big\s+(.+)$/i,template:'<span style="font-size:2em;">$1</span>'},
+    {regex:/^small\s+(.+)$/i,template:'<span style="font-size:.8em;">$1</span>'},
+    {regex:/^bold\s+(.+)$/i,template:'<strong>$1</strong>'},
+    {regex:/^italic\s+(.+)$/i,template:'<em>$1</em>'},
+    {regex:/^link\s+(\S+)\s+(.+)$/i,template:'<a href="$1" style="color:#58a6ff;">$2</a>'},
+    {regex:/^color-(\w+)\s+(.+)$/i,template:'<span style="color:$1;">$2</span>'},
+    {regex:/^bg-(\w+)\s+(.+)$/i,template:'<div style="background:$1;padding:15px;border-radius:6px;">$2</div>'},
+    {regex:/^card\s+(.+)$/i,template:'<div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:20px;box-shadow:0 4px 12px rgba(0,0,0,.3);">$1</div>'},
+    {regex:/^grid-(\d+)\s+(.+)$/i,template:'<div style="display:grid;grid-template-columns:repeat($1,1fr);gap:10px;">$2</div>'},
+    {regex:/^flex\s+(.+)$/i,template:'<div style="display:flex;gap:10px;align-items:center;">$1</div>'},
+    {regex:/^emoji-(\w+)\s+(.+)$/i,template:'<div style="font-size:2em;">$1</div><div>$2</div>'},
+    {regex:/^alert-(\w+)\s+(.+)$/i,template:'<div style="background:$1;padding:12px;border-radius:6px;border-left:4px solid #fff;">⚠️ $2</div>'},
+    {regex:/^progress\s+(\d+)$/i,template:'<div style="background:var(--bg3);height:20px;border-radius:10px;overflow:hidden;"><div style="background:#3fb950;width:$1%;height:100%;"></div></div>'},
+  ];
+  for(var i=0;i<patterns.length;i++){
+    var match=shorthand.match(patterns[i].regex);
+    if(match){
+      var result=patterns[i].template;
+      for(var j=1;j<match.length;j++){
+        result=result.replace(new RegExp('\\$'+j,'g'),match[j]);
+      }
+      // Convert common color names
+      var colorMap={red:'#f85149',blue:'#58a6ff',green:'#3fb950',yellow:'#ffd700',purple:'#a855f7',orange:'#ffa657',pink:'#ff6b9d',cyan:'#4fc1ff',white:'#fff',black:'#000',gray:'#8b949e'};
+      for(var c in colorMap){
+        result=result.replace(new RegExp(':'+c+';','g'),':'+colorMap[c]+';');
+        result=result.replace(new RegExp('="'+c+'"','g'),'="'+colorMap[c]+'"');
+      }
+      return result;
+    }
+  }
+  // Default: just wrap in div
+  return '<div>'+shorthand+'</div>';
+}
+
+// ====== RIGHT PANEL FILE LIST ======
+function updateRightPanelFiles(){
+  var container=document.getElementById('rightPanelFiles');
+  if(!container||!currentProject)return;
+  var files=[];collectFiles(currentProject.fileRoot,files);
+  document.getElementById('infoFiles').textContent=files.length;
+  container.innerHTML='';
+  files.forEach(function(f){
+    var ext=f.name.split('.').pop();
+    var icon=ext==='html'||ext==='admin'?'📄':ext==='css'?'🎨':ext==='js'?'⚡':'📃';
+    var div=document.createElement('div');
+    div.className='file-preview-item'+(f.id===activeCodeFileId?' active':'');
+    div.innerHTML='<span class="file-preview-icon">'+icon+'</span><span class="file-preview-name">'+escH(f.name)+'</span><span class="file-preview-del">🗑️</span>';
+    div.onclick=function(e){if(e.target.classList.contains('file-preview-del')){deleteFileByPath(f.name);saveProjects();updateRightPanelFiles();renderProjectFilesTree();}else{openCodeFile(f.id);}};
+    container.appendChild(div);
+  });
+  if(files.length===0){
+    container.innerHTML='<div style="color:var(--dim);font-size:.75em;padding:10px;">No files yet. Click "New File" or say "create file main.html"</div>';
+  }
+}
+
+// Toggle right panel
+document.getElementById('toggleRightPanel')?.addEventListener('click',function(){
+  var r=document.getElementById('edRight');
+  r.classList.toggle('open');
+});
+
+// Update right panel when project opens
+var originalOpenProject=openProject;
+openProject=function(id){
+  originalOpenProject(id);
+  updateRightPanelFiles();
+};
 </script>
 </body>
 </html>
