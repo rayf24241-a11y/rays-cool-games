@@ -1,15 +1,33 @@
 // ============================================================
-//  RAYS CREAT3R — AUTH MODULE (with password support)
-//  Persistent login: once logged in, stays logged in until user
-//  explicitly logs out. Survives page reloads & deploys.
+//  RAYS CREAT3R — AUTH MODULE (v2.0)
+//  - Persistent login: stays logged in until explicit logout
+//  - Unique usernames enforced across all accounts
+//  - Wiped all existing accounts for fresh start
 // ============================================================
 (function(window){
   "use strict";
 
-  var USER_KEY    = "rc_user";
-  var SESSION_KEY = "rc_session";
-  var ACH_KEY     = "rc_achievements";
-  var LEGACY_KEY  = "candyclick_user";
+  var USER_KEY      = "rc_user";
+  var SESSION_KEY   = "rc_session";
+  var ACH_KEY       = "rc_achievements";
+  var REGISTRY_KEY  = "rc_username_registry"; // Tracks ALL taken usernames
+  var LEGACY_KEY    = "candyclick_user";
+  var AUTH_VERSION  = "rc_auth_v2";
+
+  // ── MIGRATION: Wipe legacy data on version change ─────────────
+  (function migrate(){
+    var currentVer = localStorage.getItem(AUTH_VERSION);
+    if (!currentVer) {
+      // Fresh install or needs wipe - clear all auth-related data
+      localStorage.removeItem(USER_KEY);
+      localStorage.removeItem(SESSION_KEY);
+      localStorage.removeItem(ACH_KEY);
+      localStorage.removeItem(LEGACY_KEY);
+      localStorage.removeItem(REGISTRY_KEY);
+      // Keep other game data but require re-login
+      localStorage.setItem(AUTH_VERSION, "2.0");
+    }
+  })();
 
   // ── PASSWORD HASH (FNV-1a) ───────────────────────────────────
   function hashPwd(pw){
@@ -17,6 +35,33 @@
     var h=2166136261;
     for(var i=0;i<pw.length;i++){h^=pw.charCodeAt(i);h=Math.imul(h,16777619);}
     return "h"+(h>>>0).toString(16);
+  }
+
+  // ── USERNAME REGISTRY (ensures unique usernames) ─────────────
+  function getUsernameRegistry(){
+    try {
+      var raw = localStorage.getItem(REGISTRY_KEY);
+      return raw ? JSON.parse(raw) : [];
+    } catch(e) { return []; }
+  }
+
+  function saveUsernameRegistry(registry){
+    localStorage.setItem(REGISTRY_KEY, JSON.stringify(registry));
+  }
+
+  function isUsernameTaken(name){
+    if (!name) return true;
+    var registry = getUsernameRegistry();
+    return registry.indexOf(name.toLowerCase().trim()) >= 0;
+  }
+
+  function registerUsername(name){
+    var registry = getUsernameRegistry();
+    var cleanName = name.toLowerCase().trim();
+    if (registry.indexOf(cleanName) < 0) {
+      registry.push(cleanName);
+      saveUsernameRegistry(registry);
+    }
   }
 
   // ── GET / SET USER ──────────────────────────────────────────
@@ -39,16 +84,32 @@
   }
 
   function setUser(name,password){
-    var existing=getUser();
+    var cleanName = (name || "").trim();
+    if (!cleanName) return {ok:false,msg:"Username is required."};
+    if (cleanName.length < 2) return {ok:false,msg:"Username must be at least 2 characters."};
+
+    var existing = getUser();
+
+    // Check if username is taken by someone else (not current user changing their name)
+    if (isUsernameTaken(cleanName)) {
+      // Allow if it's the same user updating their account
+      if (!existing || existing.name.toLowerCase() !== cleanName.toLowerCase()) {
+        return {ok:false,msg:"That username is already taken. Try a different one."};
+      }
+    }
+
     var u={
-      name:name,
+      name:cleanName,
       passwordHash:password?hashPwd(password):(existing&&existing.passwordHash||""),
       created:existing?existing.created:Date.now(),
       lastSeen:Date.now(),
       loggedIn:true
     };
+
+    // Register username in global registry
+    registerUsername(cleanName);
     localStorage.setItem(USER_KEY,JSON.stringify(u));
-    return u;
+    return {ok:true,user:u};
   }
 
   function loginWithPassword(name,password){
@@ -130,9 +191,23 @@
       var p=JSON.parse(decodeURIComponent(escape(atob(key.trim()))));
       if(!p.user)return{ok:false,msg:"Invalid key — no user data."};
       var u=p.user;
+      var targetName = name || u.name;
+
+      // Check if username is available (unless importing to same device with same name)
+      var existing = getUser();
+      if (isUsernameTaken(targetName)) {
+        if (!existing || existing.name.toLowerCase() !== targetName.toLowerCase()) {
+          return {ok:false,msg:"Username '"+targetName+"' is already taken on this device. Try a different name."};
+        }
+      }
+
       if(name)u.name=name;
       u.lastSeen=Date.now();
       u.loggedIn=true;
+
+      // Register the username
+      registerUsername(u.name);
+
       localStorage.setItem(USER_KEY,JSON.stringify(u));
       if(p.session)localStorage.setItem(SESSION_KEY,JSON.stringify(p.session));
       if(p.achievements)localStorage.setItem(ACH_KEY,JSON.stringify(p.achievements));
@@ -141,6 +216,17 @@
       if(p.published&&p.published!=="[]")localStorage.setItem("rc_published",p.published);
       return{ok:true,user:u};
     }catch(e){return{ok:false,msg:"Could not read that key. Make sure you copied the whole thing."};}
+  }
+
+  // ── ADMIN / DEBUG ───────────────────────────────────────────
+  function clearAllAccounts(){
+    // Wipes all auth data - use with caution!
+    localStorage.removeItem(USER_KEY);
+    localStorage.removeItem(SESSION_KEY);
+    localStorage.removeItem(ACH_KEY);
+    localStorage.removeItem(REGISTRY_KEY);
+    localStorage.removeItem(AUTH_VERSION);
+    return {ok:true,msg:"All accounts wiped. Refresh to start fresh."};
   }
 
   function avatarColor(name){
@@ -155,6 +241,7 @@
     loginWithPassword:loginWithPassword, hashPwd:hashPwd,
     startSession:startSession, endSession:endSession, getSession:getSession,
     getAchievements:getAchievements, unlockAchievement:unlockAchievement, hasAchievement:hasAchievement,
-    exportKey:exportKey, importKey:importKey, avatarColor:avatarColor
+    exportKey:exportKey, importKey:importKey, avatarColor:avatarColor,
+    isUsernameTaken:isUsernameTaken, clearAllAccounts:clearAllAccounts
   };
 })(window);
