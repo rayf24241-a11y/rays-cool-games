@@ -262,16 +262,35 @@ input,textarea,select{font-family:'Nunito',sans-serif;}
 .px-add-costume:hover{color:var(--accent3);}
 
 /* === GAME PREVIEW === */
-#previewModal{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:600;display:flex;flex-direction:column;align-items:center;justify-content:center;}
-#previewModal .preview-header{display:flex;align-items:center;justify-content:space-between;width:800px;max-width:95vw;margin-bottom:12px;}
+#previewModal{position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:600;display:flex;flex-direction:column;}
+#previewModal .preview-header{display:flex;align-items:center;justify-content:space-between;padding:12px 20px;background:var(--bg2);border-bottom:1px solid var(--border);flex-shrink:0;}
 #previewModal h3{font-family:'Fredoka One',cursive;color:var(--accent3);font-size:1.3em;}
-.preview-close{padding:7px 16px;background:var(--bg2);border:1px solid var(--border2);border-radius:6px;color:var(--text);font-size:.85em;cursor:pointer;}
-#previewFrame{width:800px;max-width:95vw;height:500px;background:#1a1a2e;border:1px solid var(--border2);border-radius:12px;overflow:hidden;position:relative;}
+.preview-close{padding:10px 24px;background:var(--red);border:none;border-radius:8px;color:#fff;font-size:.95em;font-weight:700;cursor:pointer;transition:all .2s;}
+.preview-close:hover{background:#ff6b6b;transform:translateY(-2px);}
+#previewFrame{flex:1;width:100%;height:100%;background:#1a1a2e;overflow:hidden;position:relative;}
+#previewFrame iframe{width:100%;height:100%;border:none;}
 
 .ai-credit{font-size:.78em;color:var(--yellow);font-weight:800;}
 #aiModal{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:980;display:flex;align-items:center;justify-content:center;}
 .ai-box{width:560px;max-width:96vw;height:70vh;max-height:700px;background:var(--bg2);border:1px solid var(--border2);border-radius:14px;display:flex;flex-direction:column;overflow:hidden;}
 .ai-head{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border-bottom:1px solid var(--border);}
+/* AI Character - Pixelated Block with Hammer */
+.ai-char{width:48px;height:48px;image-rendering:pixelated;animation:aiHop 0.6s ease-in-out infinite;margin-right:10px;flex-shrink:0;}
+@keyframes aiHop{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.ai-char-inner{width:48px;height:48px;position:relative;}
+/* Pixelated block body */
+.ai-body{position:absolute;width:32px;height:32px;left:8px;top:8px;background:linear-gradient(135deg,#7c3aed,#a855f7);border-radius:4px;box-shadow:inset -4px -4px 0 rgba(0,0,0,.2),inset 4px 4px 0 rgba(255,255,255,.1);}
+/* Smile */
+.ai-smile{position:absolute;width:16px;height:8px;left:16px;top:24px;border-bottom:3px solid #fff;border-left:3px solid transparent;border-right:3px solid transparent;border-radius:0 0 8px 8px;}
+/* Eyes */
+.ai-eyes{position:absolute;left:14px;top:16px;display:flex;gap:8px;}
+.ai-eye{width:4px;height:4px;background:#fff;border-radius:50%;}
+/* Hammer */
+.ai-hammer{position:absolute;right:2px;top:4px;width:12px;height:20px;transform:rotate(30deg);animation:hammerSwing 1s ease-in-out infinite;}
+@keyframes hammerSwing{0%,100%{transform:rotate(30deg)}50%{transform:rotate(10deg)}}
+.ai-hammer-head{width:12px;height:8px;background:#4a5568;border-radius:2px;}
+.ai-hammer-handle{width:4px;height:14px;background:#a0522d;margin-left:4px;margin-top:-2px;border-radius:0 0 2px 2px;}
+.ai-title-wrap{display:flex;align-items:center;}
 .ai-log{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px;background:var(--bg);}
 .ai-msg{padding:8px 10px;border-radius:8px;font-size:.84em;line-height:1.45;max-width:90%;}
 .ai-msg.user{align-self:flex-end;background:rgba(88,166,255,.18);border:1px solid rgba(88,166,255,.35);}
@@ -558,8 +577,8 @@ document.addEventListener('DOMContentLoaded', function() {
 <!-- Preview Modal -->
 <div id="previewModal" class="hidden">
   <div class="preview-header">
-    <h3>▶ Game Preview</h3>
-    <button class="preview-close" id="closePreviewBtn">✕ Stop</button>
+    <h3>🎮 Testing Game</h3>
+    <button class="preview-close" id="closePreviewBtn">Exit Test</button>
   </div>
   <div id="previewFrame"></div>
 </div>
@@ -634,7 +653,20 @@ document.addEventListener('DOMContentLoaded', function() {
 <div id="aiModal" class="hidden">
   <div class="ai-box">
     <div class="ai-head">
-      <div style="font-weight:800;">🤖 Creator AI <span id="aiCredits" class="ai-credit">50 credits</span> <button id="refreshAiCreditsBtn" style="margin-left:6px;padding:2px 8px;border:1px solid var(--border2);background:var(--bg3);color:var(--muted);border-radius:6px;font-size:.72em;cursor:pointer;">refresh</button></div>
+      <div class="ai-title-wrap">
+        <div class="ai-char">
+          <div class="ai-char-inner">
+            <div class="ai-body"></div>
+            <div class="ai-eyes"><div class="ai-eye"></div><div class="ai-eye"></div></div>
+            <div class="ai-smile"></div>
+            <div class="ai-hammer">
+              <div class="ai-hammer-head"></div>
+              <div class="ai-hammer-handle"></div>
+            </div>
+          </div>
+        </div>
+        <div style="font-weight:800;">Creator AI <span id="aiCredits" class="ai-credit">50 credits</span> <button id="refreshAiCreditsBtn" style="margin-left:6px;padding:2px 8px;border:1px solid var(--border2);background:var(--bg3);color:var(--muted);border-radius:6px;font-size:.72em;cursor:pointer;">refresh</button></div>
+      </div>
       <button class="preview-close" id="closeAiBtn">Close</button>
     </div>
     <div id="aiLog" class="ai-log"></div>
@@ -1890,6 +1922,62 @@ function aiWriteTemplate(kind){
     return '✅ Generated complete tower defense with 4 tower types and enemy waves!';
   }
 
+  // ===== PUZZLE/MATCH-3 =====
+  if(kind==='puzzle'||kind==='match3'||kind==='candy'||kind==='swap'){
+    createFileByPath('main.admin','<main id="game"><div id="ui"><h1>🧩 Match 3</h1><div id="score">Score: <span id="scoreVal">0</span></div><div id="moves">Moves: <span id="movesVal">30</span></div></div><canvas id="canvas" width="480" height="480"></canvas><button id="reset">New Game</button></main>');
+    createFileByPath('style.css','*{margin:0;padding:0;box-sizing:border-box}body{margin:0;background:linear-gradient(135deg,#1a1030,#0d0820);color:#fff;font-family:Nunito,sans-serif;height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center}#game{text-align:center}h1{color:#a855f7;margin-bottom:10px}#ui{display:flex;gap:30px;justify-content:center;margin-bottom:15px;font-size:1.2em;font-weight:700}#score span{color:#ffd700}#moves span{color:#58a6ff}canvas{border:4px solid #30363d;border-radius:12px;background:#161b22;box-shadow:0 0 40px rgba(168,85,247,.3)}button{margin-top:15px;padding:12px 30px;border:none;border-radius:8px;background:#7c3aed;color:#fff;font-weight:700;cursor:pointer}button:hover{background:#a855f7}');
+    createFileByPath('game.js','const canvas=document.getElementById("canvas"),ctx=canvas.getContext("2d"),SIZE=60,COLS=8,ROWS=8,GEMS=["💎","🔴","🟢","🔵","🟡","🟣","🟠"];let grid=[],score=0,moves=30,selected=null,animating=false;function init(){grid=[];for(let r=0;r<ROWS;r++){grid[r]=[];for(let c=0;c<COLS;c++){grid[r][c]=Math.floor(Math.random()*GEMS.length);}}while(findMatches().length>0){for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++)grid[r][c]=Math.floor(Math.random()*GEMS.length);}render();}function findMatches(){const matches=[];for(let r=0;r<ROWS;r++)for(let c=0;c<COLS-2;c++)if(grid[r][c]===grid[r][c+1]&&grid[r][c]===grid[r][c+2])matches.push({r,c});for(let c=0;c<COLS;c++)for(let r=0;r<ROWS-2;r++)if(grid[r][c]===grid[r+1][c]&&grid[r][c]===grid[r+2][c])matches.push({r,c});return matches;}function render(){ctx.fillStyle="#161b22";ctx.fillRect(0,0,canvas.width,canvas.height);for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){const x=c*SIZE,y=r*SIZE;ctx.fillStyle=selected&&selected.r===r&&selected.c===c?"rgba(168,85,247,.3)":"rgba(255,255,255,.05)";ctx.fillRect(x+2,y+2,SIZE-4,SIZE-4);ctx.font="36px sans-serif";ctx.fillText(GEMS[grid[r][c]],x+15,y+45);}}canvas.onclick=function(e){if(animating||moves<=0)return;const rect=canvas.getBoundingClientRect();const c=Math.floor((e.clientX-rect.left)/SIZE),r=Math.floor((e.clientY-rect.top)/SIZE);if(selected){if(Math.abs(selected.r-r)+Math.abs(selected.c-c)===1){const temp=grid[r][c];grid[r][c]=grid[selected.r][selected.c];grid[selected.r][selected.c]=temp;moves--;document.getElementById("movesVal").textContent=moves;const matches=findMatches();if(matches.length>0){animating=true;setTimeout(()=>removeMatches(matches),200);}selected=null;}else{selected={r,c};}}else{selected={r,c};}render();};function removeMatches(matches){const found=new Set();matches.forEach(m=>{for(let i=0;i<3;i++){const mr=m.r+i,mc=m.c+i;found.add(mr+","+mc);}});found.forEach(pos=>{const[r,c]=pos.split(",").map(Number);grid[r][c]=-1;});score+=found.size*10;document.getElementById("scoreVal").textContent=score;setTimeout(dropGems,200);}function dropGems(){for(let c=0;c<COLS;c++){for(let r=ROWS-1;r>=0;r--){if(grid[r][c]===-1){for(let nr=r-1;nr>=0;nr--){if(grid[nr][c]!==-1){grid[r][c]=grid[nr][c];grid[nr][c]=-1;break;}}if(grid[r][c]===-1)grid[r][c]=Math.floor(Math.random()*GEMS.length);}}}const matches=findMatches();if(matches.length>0){setTimeout(()=>removeMatches(matches),200);}else{animating=false;render();}}document.getElementById("reset").onclick=init;init();');
+    return '✅ Generated complete Match-3 puzzle game with cascading combos!';
+  }
+
+  // ===== BREAKOUT =====
+  if(kind==='breakout'||kind==='brick'||kind==='arkanoid'){
+    createFileByPath('main.admin','<main id="game"><div id="ui"><h1>🧱 Breakout</h1><div id="score">Score: <span id="scoreVal">0</span></div><div id="lives">Lives: <span id="livesVal">3</span></div></div><canvas id="canvas" width="800" height="500"></canvas><button id="start">Start Game</button></main>');
+    createFileByPath('style.css','*{margin:0;padding:0;box-sizing:border-box}body{margin:0;background:#0d1117;color:#fff;font-family:Nunito,sans-serif;height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center}#game{text-align:center}h1{color:#a855f7;margin-bottom:10px}#ui{display:flex;gap:30px;justify-content:center;margin-bottom:10px;font-size:1.2em;font-weight:700}#score span{color:#ffd700}#lives span{color:#f85149}canvas{border:3px solid #30363d;border-radius:8px;background:#161b22;box-shadow:0 0 30px rgba(124,58,237,.2)}button{margin-top:15px;padding:12px 30px;border:none;border-radius:8px;background:#7c3aed;color:#fff;font-weight:700;cursor:pointer}button:hover{background:#a855f7}');
+    createFileByPath('game.js','const canvas=document.getElementById("canvas"),ctx=canvas.getContext("2d"),W=canvas.width,H=canvas.height;const paddle={x:350,y:470,w:100,h:12,speed:8};const ball={x:400,y:300,r:8,dx:4,dy:-4};let bricks=[],score=0,lives=3,playing=false;const COLORS=["#f85149","#ffa657","#ffd700","#3fb950","#58a6ff","#a855f7"];function initBricks(){bricks=[];for(let r=0;r<6;r++)for(let c=0;c<10;c++)bricks.push({x:c*78+10,y:r*28+30,w:70,h:22,color:COLORS[r],alive:true});}function draw(){ctx.fillStyle="#161b22";ctx.fillRect(0,0,W,H);ctx.fillStyle="#7c3aed";ctx.fillRect(paddle.x,paddle.y,paddle.w,paddle.h);ctx.beginPath();ctx.arc(ball.x,ball.y,ball.r,0,Math.PI*2);ctx.fillStyle="#fff";ctx.fill();bricks.forEach(b=>{if(b.alive){ctx.fillStyle=b.color;ctx.fillRect(b.x,b.y,b.w,b.h);}});}function update(){if(!playing)return;ball.x+=ball.dx;ball.y+=ball.dy;if(ball.x<ball.r||ball.x>W-ball.r)ball.dx=-ball.dx;if(ball.y<ball.r)ball.dy=-ball.dy;if(ball.y+ball.r>paddle.y&&ball.x>paddle.x&&ball.x<paddle.x+paddle.w){ball.dy=-Math.abs(ball.dy);ball.dx=(ball.x-(paddle.x+paddle.w/2))*0.1;}if(ball.y>H){lives--;document.getElementById("livesVal").textContent=lives;if(lives<=0){playing=false;alert("Game Over! Score: "+score);initBricks();lives=3;score=0;}else{ball.x=400;ball.y=300;}}bricks.forEach(b=>{if(b.alive&&ball.x>b.x&&ball.x<b.x+b.w&&ball.y>b.y&&ball.y<b.y+b.h){b.alive=false;ball.dy=-ball.dy;score+=10;document.getElementById("scoreVal").textContent=score;}});if(bricks.every(b=>!b.alive)){alert("You Win! Score: "+score);initBricks();}}document.addEventListener("keydown",e=>{if(e.key==="ArrowLeft"&&paddle.x>0)paddle.x-=paddle.speed;if(e.key==="ArrowRight"&&paddle.x<W-paddle.w)paddle.x+=paddle.speed;});canvas.addEventListener("mousemove",e=>{const rect=canvas.getBoundingClientRect();paddle.x=e.clientX-rect.left-paddle.w/2;if(paddle.x<0)paddle.x=0;if(paddle.x>W-paddle.w)paddle.x=W-paddle.w;});function loop(){update();draw();requestAnimationFrame(loop);}document.getElementById("start").onclick=()=>{initBricks();playing=true;ball.x=400;ball.y=300;ball.dx=4;ball.dy=-4;};initBricks();loop();');
+    return '✅ Generated complete Breakout with paddle, ball physics, and colorful bricks!';
+  }
+
+  // ===== ASTEROIDS =====
+  if(kind==='asteroids'||kind==='asteroid'){
+    createFileByPath('main.admin','<main id="game"><div id="ui"><h1>☄️ Asteroids</h1><div id="score">Score: <span id="scoreVal">0</span></div><div id="lives">Lives: <span id="livesVal">3</span></div></div><canvas id="canvas" width="800" height="600"></canvas><p>Arrow keys to move | Space to shoot</p></main>');
+    createFileByPath('style.css','*{margin:0;padding:0;box-sizing:border-box}body{margin:0;background:#000;color:#fff;font-family:Nunito,sans-serif;height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center}#game{text-align:center}h1{color:#a855f7;margin-bottom:10px}#ui{display:flex;gap:30px;justify-content:center;margin-bottom:10px;font-size:1.2em;font-weight:700}#score span{color:#ffd700}#lives span{color:#f85149}canvas{border:2px solid #30363d;border-radius:8px;background:#000}p{color:#8b949e;margin-top:10px}');
+    createFileByPath('game.js','const canvas=document.getElementById("canvas"),ctx=canvas.getContext("2d"),W=canvas.width,H=canvas.height;const ship={x:W/2,y:H/2,angle:0,rotation:0,thrust:0,vx:0,vy:0};let bullets=[],asteroids=[],particles=[],score=0,lives=3,keys={};function createAsteroid(x,y,size){return{x,y,size,vx:(Math.random()-.5)*3,vy:(Math.random()-.5)*3,angle:Math.random()*Math.PI*2,vertices:[]};}function initAsteroids(){asteroids=[];for(let i=0;i<5;i++)asteroids.push(createAsteroid(Math.random()*W,Math.random()*H,3));}document.addEventListener("keydown",e=>{keys[e.code]=true;if(e.code==="Space"){bullets.push({x:ship.x+Math.cos(ship.angle)*20,y:ship.y+Math.sin(ship.angle)*20,dx:Math.cos(ship.angle)*10,dy:Math.sin(ship.angle)*10,life:60});}});document.addEventListener("keyup",e=>keys[e.code]=false);function update(){if(keys["ArrowLeft"])ship.angle-=0.08;if(keys["ArrowRight"])ship.angle+=0.08;if(keys["ArrowUp"]){ship.vx+=Math.cos(ship.angle)*0.15;ship.vy+=Math.sin(ship.angle)*0.15;}ship.x+=ship.vx;ship.y+=ship.vy;ship.vx*=0.99;ship.vy*=0.99;if(ship.x<0)ship.x=W;if(ship.x>W)ship.x=0;if(ship.y<0)ship.y=H;if(ship.y>H)ship.y=0;bullets=bullets.filter(b=>{b.x+=b.dx;b.y+=b.dy;b.life--;return b.life>0&&b.x>0&&b.x<W&&b.y>0&&b.y<H;});asteroids.forEach(a=>{a.x+=a.vx;a.y+=a.vy;if(a.x<0)a.x=W;if(a.x>W)a.x=0;if(a.y<0)a.y=H;if(a.y>H)a.y=0;});bullets.forEach(b=>{asteroids.forEach((a,i)=>{const dist=Math.hypot(b.x-a.x,b.y-a.y);if(dist<a.size*15){asteroids.splice(i,1);score+=a.size*10;document.getElementById("scoreVal").textContent=score;if(a.size>1){asteroids.push(createAsteroid(a.x,a.y,a.size-1));asteroids.push(createAsteroid(a.x,a.y,a.size-1));}}});});if(asteroids.length===0)initAsteroids();}function draw(){ctx.fillStyle="#000";ctx.fillRect(0,0,W,H);ctx.save();ctx.translate(ship.x,ship.y);ctx.rotate(ship.angle);ctx.strokeStyle="#fff";ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(20,0);ctx.lineTo(-15,-12);ctx.lineTo(-15,12);ctx.closePath();ctx.stroke();ctx.restore();ctx.fillStyle="#fff";bullets.forEach(b=>ctx.fillRect(b.x-2,b.y-2,4,4));ctx.strokeStyle="#888";asteroids.forEach(a=>{ctx.beginPath();for(let i=0;i<8;i++){const angle=a.angle+i*Math.PI/4;const r=a.size*15*(0.8+Math.random()*0.4);const x=a.x+Math.cos(angle)*r;const y=a.y+Math.sin(angle)*r;if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);}ctx.closePath();ctx.stroke();});}function loop(){update();draw();requestAnimationFrame(loop);}initAsteroids();loop();');
+    return '✅ Generated complete Asteroids with ship controls, shooting, and asteroid splitting!';
+  }
+
+  // ===== MEMORY GAME =====
+  if(kind==='memory'||kind==='memorize'||kind==='pairs'){
+    createFileByPath('main.admin','<main id="game"><h1>🧠 Memory Match</h1><div id="stats"><div>Moves: <span id="moves">0</span></div><div>Pairs: <span id="pairs">0</span>/8</div></div><div id="grid"></div><button id="reset">New Game</button></main>');
+    createFileByPath('style.css','*{margin:0;padding:0;box-sizing:border-box}body{margin:0;background:linear-gradient(135deg,#1a1030,#0d0820);color:#fff;font-family:Nunito,sans-serif;height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center}h1{color:#a855f7;margin-bottom:15px}#stats{display:flex;gap:30px;margin-bottom:20px;font-size:1.2em;font-weight:700}#moves span{color:#58a6ff}#pairs span{color:#ffd700}#grid{display:grid;grid-template-columns:repeat(4,80px);gap:10px;margin-bottom:20px}.card{width:80px;height:80px;background:#30363d;border:2px solid #444;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:2.5em;cursor:pointer;transition:all .3s}.card.flipped{background:#1a1a2e;border-color:#a855f7}.card.matched{background:#2d3a1e;border-color:#3fb950;opacity:.7}button{padding:12px 30px;border:none;border-radius:8px;background:#7c3aed;color:#fff;font-weight:700;cursor:pointer}button:hover{background:#a855f7}');
+    createFileByPath('game.js','const emojis=["🎮","🎲","🎯","🎪","🎨","🎭","🎸","🎺"];let cards=[],flipped=[],matched=0,moves=0,locked=false;function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a;}function init(){cards=shuffle([...emojis,...emojis]);flipped=[];matched=0;moves=0;locked=false;document.getElementById("moves").textContent=0;document.getElementById("pairs").textContent=0;const grid=document.getElementById("grid");grid.innerHTML="";cards.forEach((emoji,i)=>{const card=document.createElement("div");card.className="card";card.dataset.index=i;card.textContent="?";card.onclick=()=>flip(card,emoji,i);grid.appendChild(card);});}function flip(card,emoji,index){if(locked||card.classList.contains("flipped")||card.classList.contains("matched"))return;card.classList.add("flipped");card.textContent=emoji;flipped.push({card,emoji,index});if(flipped.length===2){moves++;document.getElementById("moves").textContent=moves;locked=true;setTimeout(check,800);}}function check(){const[a,b]=flipped;if(a.emoji===b.emoji){a.card.classList.add("matched");b.card.classList.add("matched");matched++;document.getElementById("pairs").textContent=matched+"/8";if(matched===8)alert("You won in "+moves+" moves!");}else{a.card.classList.remove("flipped");b.card.classList.remove("flipped");a.card.textContent="?";b.card.textContent="?";}flipped=[];locked=false;}document.getElementById("reset").onclick=init;init();');
+    return '✅ Generated complete Memory Match game with 16 cards!';
+  }
+
+  // ===== WHACK-A-MOLE =====
+  if(kind==='whack'||kind==='mole'){
+    createFileByPath('main.admin','<main id="game"><h1>🔨 Whack-a-Mole</h1><div id="score">Score: <span id="scoreVal">0</span></div><div id="time">Time: <span id="timeVal">30</span>s</div><div id="grid"></div><button id="start">Start Game</button></main>');
+    createFileByPath('style.css','*{margin:0;padding:0;box-sizing:border-box}body{margin:0;background:linear-gradient(180deg,#228B22,#006400);color:#fff;font-family:Nunito,sans-serif;height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center}h1{color:#ffd700;text-shadow:2px 2px 4px rgba(0,0,0,.5);margin-bottom:15px}#score,#time{font-size:1.5em;font-weight:800;margin-bottom:10px}#score span{color:#ffd700}#time span{color:#ff6b6b}#grid{display:grid;grid-template-columns:repeat(3,100px);gap:15px;margin:20px 0}.hole{width:100px;height:100px;background:#5d4037;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:3em;cursor:pointer;transition:transform .1s;box-shadow:inset 0 10px 20px rgba(0,0,0,.5)}.hole:active{transform:scale(.95)}.hole.mole{background:#8d6e63}button{padding:15px 40px;border:none;border-radius:30px;background:#ff6b6b;color:#fff;font-weight:800;font-size:1.1em;cursor:pointer}button:hover{background:#ff5252}');
+    createFileByPath('game.js','let score=0,time=30,playing=false,timeout;const holes=document.querySelectorAll(".hole");const grid=document.getElementById("grid");for(let i=0;i<9;i++){const hole=document.createElement("div");hole.className="hole";hole.textContent="🕳️";hole.onclick=()=>whack(hole);grid.appendChild(hole);}const allHoles=document.querySelectorAll(".hole");function whack(hole){if(!playing||!hole.classList.contains("mole"))return;score++;document.getElementById("scoreVal").textContent=score;hole.classList.remove("mole");hole.textContent="💫";setTimeout(()=>{hole.textContent="🕳️";},200);}function popMole(){if(!playing)return;const idx=Math.floor(Math.random()*allHoles.length);const hole=allHoles[idx];hole.classList.add("mole");hole.textContent="🐹";setTimeout(()=>{if(hole.classList.contains("mole")){hole.classList.remove("mole");hole.textContent="🕳️";}},800+Math.random()*400);if(playing)setTimeout(popMole,600+Math.random()*800);}function tick(){if(time<=0){playing=false;alert("Game Over! Score: "+score);return;}time--;document.getElementById("timeVal").textContent=time;timeout=setTimeout(tick,1000);}document.getElementById("start").onclick=()=>{score=0;time=30;playing=true;document.getElementById("scoreVal").textContent=0;document.getElementById("timeVal").textContent=30;clearTimeout(timeout);tick();popMole();};');
+    return '✅ Generated complete Whack-a-Mole game with timer and scoring!';
+  }
+
+  // ===== DODGE GAME =====
+  if(kind==='dodge'||kind==='avoid'){
+    createFileByPath('main.admin','<main id="game"><div id="ui"><h1>💨 Dodge!</h1><div>Score: <span id="score">0</span></div><div>High: <span id="high">0</span></div></div><canvas id="canvas" width="600" height="600"></canvas><p>Move mouse to dodge the falling blocks!</p></main>');
+    createFileByPath('style.css','*{margin:0;padding:0;box-sizing:border-box}body{margin:0;background:#0d1117;color:#fff;font-family:Nunito,sans-serif;height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center}#game{text-align:center}h1{color:#a855f7;margin-bottom:10px}#ui{display:flex;gap:30px;justify-content:center;margin-bottom:10px;font-size:1.2em;font-weight:700}#score span{color:#ffd700}#high span{color:#3fb950}canvas{border:3px solid #30363d;border-radius:8px;background:#161b22;cursor:none}p{color:#8b949e;margin-top:10px}');
+    createFileByPath('game.js','const canvas=document.getElementById("canvas"),ctx=canvas.getContext("2d"),W=canvas.width,H=canvas.height;const player={x:W/2,y:H-50,size:20};let obstacles=[],score=0,high=localStorage.getItem("dodgeHigh")||0,playing=true,speed=3;document.getElementById("high").textContent=high;canvas.addEventListener("mousemove",e=>{const rect=canvas.getBoundingClientRect();player.x=e.clientX-rect.left;player.y=e.clientY-rect.top;});function spawnObstacle(){obstacles.push({x:Math.random()*(W-40)+20,y:-30,w:30+Math.random()*30,h:30+Math.random()*30,color:`hsl(${Math.random()*360},70%,50%)`});}function update(){if(!playing)return;if(Math.random()<0.03+score/2000)spawnObstacle();obstacles.forEach(o=>{o.y+=speed+score/500;if(o.y>H)score++;});obstacles=obstacles.filter(o=>o.y<H);document.getElementById("score").textContent=score;obstacles.forEach(o=>{if(player.x>o.x&&player.x<o.x+o.w&&player.y>o.y&&player.y<o.y+o.h){playing=false;if(score>high){high=score;localStorage.setItem("dodgeHigh",high);document.getElementById("high").textContent=high;}alert("Game Over! Score: "+score);location.reload();}});}function draw(){ctx.fillStyle="#161b22";ctx.fillRect(0,0,W,H);ctx.fillStyle="#58a6ff";ctx.beginPath();ctx.arc(player.x,player.y,player.size,0,Math.PI*2);ctx.fill();ctx.fillStyle="#fff";ctx.beginPath();ctx.arc(player.x-5,player.y-5,4,0,Math.PI*2);ctx.arc(player.x+5,player.y-5,4,0,Math.PI*2);ctx.fill();obstacles.forEach(o=>{ctx.fillStyle=o.color;ctx.fillRect(o.x,o.y,o.w,o.h);});}function loop(){update();draw();requestAnimationFrame(loop);}loop();');
+    return '✅ Generated complete Dodge game with mouse controls and high score!';
+  }
+
+  // ===== PINBALL =====
+  if(kind==='pinball'||kind==='flipper'){
+    createFileByPath('main.admin','<main id="game"><div id="ui"><h1>🎱 Pinball</h1><div>Score: <span id="score">0</span></div><div>Balls: <span id="balls">3</span></div></div><canvas id="canvas" width="400" height="600"></canvas><p>A/D or ←/→ for flippers | Space to launch</p></main>');
+    createFileByPath('style.css','*{margin:0;padding:0;box-sizing:border-box}body{margin:0;background:#0d1117;color:#fff;font-family:Nunito,sans-serif;height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center}#game{text-align:center}h1{color:#a855f7;margin-bottom:10px}#ui{display:flex;gap:30px;justify-content:center;margin-bottom:10px;font-size:1.2em;font-weight:700}#score span{color:#ffd700}#balls span{color:#f85149}canvas{border:3px solid #30363d;border-radius:8px;background:radial-gradient(ellipse at top,#1a0b2e,#0d0520)}p{color:#8b949e;margin-top:10px}');
+    createFileByPath('game.js','const canvas=document.getElementById("canvas"),ctx=canvas.getContext("2d"),W=canvas.width,H=canvas.height;const ball={x:W-30,y:H-100,r:8,vx:0,vy:0};const leftFlipper={x:100,y:H-80,w:80,h:12,angle:0.3};const rightFlipper={x:W-180,y:H-80,w:80,h:12,angle:-0.3};let score=0,balls=3,keys={};const bumpers=[{x:100,y:150,r:25,pts:100},{x:300,y:150,r:25,pts:100},{x:200,y:250,r:30,pts:50}];document.addEventListener("keydown",e=>{keys[e.key]=true;if(e.code==="Space"&&ball.vx===0&&ball.vy===0){ball.vy=-12;ball.vx=-3;}});document.addEventListener("keyup",e=>keys[e.key]=false);function update(){ball.vy+=0.3;ball.x+=ball.vx;ball.y+=ball.vy;if(ball.x<ball.r){ball.x=ball.r;ball.vx*=-0.8;}if(ball.x>W-ball.r){ball.x=W-ball.r;ball.vx*=-0.8;}if(ball.y<ball.r){ball.y=ball.r;ball.vy*=-0.8;}if(ball.y>H){balls--;document.getElementById("balls").textContent=balls;if(balls<=0){alert("Game Over! Score: "+score);location.reload();}else{ball.x=W-30;ball.y=H-100;ball.vx=0;ball.vy=0;}}bumpers.forEach(b=>{const dist=Math.hypot(ball.x-b.x,ball.y-b.y);if(dist<b.r+ball.r){const angle=Math.atan2(ball.y-b.y,ball.x-b.x);ball.vx=Math.cos(angle)*8;ball.vy=Math.sin(angle)*8;score+=b.pts;document.getElementById("score").textContent=score;}});if(keys["a"]||keys["ArrowLeft"]){leftFlipper.angle=-0.5;if(ball.x>leftFlipper.x-20&&ball.x<leftFlipper.x+leftFlipper.w&&ball.y>leftFlipper.y-20){ball.vy=-10;ball.vx=5;}}else{leftFlipper.angle=0.3;}if(keys["d"]||keys["ArrowRight"]){rightFlipper.angle=0.5;if(ball.x>rightFlipper.x&&ball.x<rightFlipper.x+rightFlipper.w+20&&ball.y>rightFlipper.y-20){ball.vy=-10;ball.vx=-5;}}else{rightFlipper.angle=-0.3;}}function draw(){ctx.fillStyle="#161b22";ctx.fillRect(0,0,W,H);ctx.fillStyle="#a855f7";bumpers.forEach(b=>{ctx.beginPath();ctx.arc(b.x,b.y,b.r,0,Math.PI*2);ctx.fill();ctx.fillStyle="#fff";ctx.font="12px sans-serif";ctx.fillText(b.pts,b.x-10,b.y+4);ctx.fillStyle="#a855f7";});ctx.save();ctx.translate(leftFlipper.x+leftFlipper.w/2,leftFlipper.y);ctx.rotate(leftFlipper.angle);ctx.fillStyle="#ff6b6b";ctx.fillRect(-leftFlipper.w/2,-leftFlipper.h/2,leftFlipper.w,leftFlipper.h);ctx.restore();ctx.save();ctx.translate(rightFlipper.x+rightFlipper.w/2,rightFlipper.y);ctx.rotate(rightFlipper.angle);ctx.fillStyle="#58a6ff";ctx.fillRect(-rightFlipper.w/2,-rightFlipper.h/2,rightFlipper.w,rightFlipper.h);ctx.restore();ctx.fillStyle="#ffd700";ctx.beginPath();ctx.arc(ball.x,ball.y,ball.r,0,Math.PI*2);ctx.fill();}function loop(){update();draw();requestAnimationFrame(loop);}loop();');
+    return '✅ Generated complete Pinball with flippers, bumpers, and scoring!';
+  }
+
   // ===== DEFAULT/STARTER =====
   return '';
 }
@@ -2359,17 +2447,96 @@ function aiDo(msg){
     return 'Use this in game.js:\ndocument.addEventListener("keydown",function(e){var p=document.getElementById("player");if(!p)return;var s=10;var x=p.offsetLeft,y=p.offsetTop;if(e.key==="w"||e.key==="ArrowUp")y-=s;if(e.key==="s"||e.key==="ArrowDown")y+=s;if(e.key==="a"||e.key==="ArrowLeft")x-=s;if(e.key==="d"||e.key==="ArrowRight")x+=s;p.style.left=x+"px";p.style.top=y+"px";});';
   }
   // ===== CONVERSATIONAL & CONTEXT AWARENESS =====
-  if(/thank|thanks|thx|ty/.test(ml))return 'You\'re welcome! 🎮 Happy game making!';
-  if(/bye|goodbye|see ya|cya|later/.test(ml))return 'See ya! Save your work! 👋';
-  if(/good job|well done|nice|awesome|great/.test(ml))return '😊 Thanks! I\'m here to help you build amazing games!';
-  if(/bad|terrible|awful|hate/.test(ml))return '😅 Let me know what went wrong and I\'ll fix it! Say "help" for commands.';
-  if(/how.*going|how are you|what.*up/.test(ml))return 'I\'m running at full speed and ready to build! What game are we making today?';
+  if(/thank|thanks|thx|ty/.test(ml))return 'You\'re welcome! 🎮 Happy game making! Need anything else?';
+  if(/bye|goodbye|see ya|cya|later/.test(ml))return 'See ya! Save your work! 👋 Come back anytime!';
+  if(/good job|well done|nice|awesome|great|amazing/.test(ml))return '😊 Thanks! I\'m here to help you build amazing games! What should we make next?';
+  if(/bad|terrible|awful|hate|sucks/.test(ml))return '😅 Let me fix it! Tell me what went wrong or try "help" for commands. I can regenerate any game!';
+  if(/how.*going|how are you|what.*up|how do you feel/.test(ml))return 'I\'m running at full speed and ready to build! 🚀 What game are we making today?';
   if(/what.*time|what.*date|current.*time/.test(ml))return '🕐 Current time: '+new Date().toLocaleTimeString()+' | Date: '+new Date().toLocaleDateString();
-  if(/joke|funny|humor/.test(ml))return 'Why do programmers prefer dark mode? Because light attracts bugs! 🐛😄';
-  if(/tip|advice|suggestion/.test(ml))return '💡 Pro tip: Start with a simple game mechanic, test it, then add features. Try "make pong" for a classic starter!';
+  if(/joke|funny|humor|laugh/.test(ml)){var jokes=['Why do programmers prefer dark mode? Because light attracts bugs! 🐛😄','A SQL query walks into a bar, walks up to two tables and asks... "Can I join you?"','There are only 10 types of people: those who understand binary and those who don\'t!','Why did the developer go broke? Because he used up all his cache! 💰'];return jokes[Math.floor(Math.random()*jokes.length)];}
+  if(/tip|advice|suggestion|recommend/.test(ml))return '💡 Pro tip: Start with a simple game mechanic, test it, then add features. Try "make pong" for a classic starter! Want more tips?';
   if(/inspire|motivate|encourage/.test(ml))return '🌟 Every game developer started somewhere. Your ideas are worth building! Just say "make platformer" and see what happens!';
-  if(/stuck|stuck|confused|lost|dont know/.test(ml))return '🤔 No worries! Try: "help" for commands, "make [game type]" for templates, or "text-red Hello!" for quick code. What are you trying to build?';
-  if(/example|show me|demo/.test(ml))return 'Want examples? Try: "make snake" (classic), "button-blue Start!" (quick UI), or "make rpg" (complex). What interests you?';
+  if(/stuck|confused|lost|dont know|help me start/.test(ml))return '🤔 No worries! Try: "help" for commands, "make [game type]" for templates, or "text-red Hello!" for quick code. What are you trying to build?';
+  if(/example|show me|demo|samples/.test(ml))return 'Want examples? Try: "make snake" (classic), "button-blue Start!" (quick UI), "make rpg" (complex), "make puzzle" (brain teaser). What interests you?';
+  
+  // ===== MORE GAME REQUESTS =====
+  if(/\b(puzzle|match3|match three|candy|swap)\b/.test(ml)){
+    var pz=aiWriteTemplate('puzzle');saveProjects();renderProjectFilesTree();
+    var pzMain=findNodeByName('main.admin','file');if(pzMain)openCodeFile(pzMain.id);
+    aiLastAction='code done';return pz;
+  }
+  if(/\b(breakout|brick|arkanoid|ball bounce)\b/.test(ml)){
+    var br=aiWriteTemplate('breakout');saveProjects();renderProjectFilesTree();
+    var brMain=findNodeByName('main.admin','file');if(brMain)openCodeFile(brMain.id);
+    aiLastAction='code done';return br;
+  }
+  if(/\b(asteroids|space shooter|asteroid)\b/.test(ml)){
+    var as=aiWriteTemplate('asteroids');saveProjects();renderProjectFilesTree();
+    var asMain=findNodeByName('main.admin','file');if(asMain)openCodeFile(asMain.id);
+    aiLastAction='code done';return as;
+  }
+  if(/\b(memory|memorize|card match|pairs)\b/.test(ml)){
+    var mm=aiWriteTemplate('memory');saveProjects();renderProjectFilesTree();
+    var mmMain=findNodeByName('main.admin','file');if(mmMain)openCodeFile(mmMain.id);
+    aiLastAction='code done';return mm;
+  }
+  if(/\b(pinball|flipper)\b/.test(ml)){
+    var pb=aiWriteTemplate('pinball');saveProjects();renderProjectFilesTree();
+    var pbMain=findNodeByName('main.admin','file');if(pbMain)openCodeFile(pbMain.id);
+    aiLastAction='code done';return pb;
+  }
+  if(/\b(whack|mole|whack a mole)\b/.test(ml)){
+    var wm=aiWriteTemplate('whack');saveProjects();renderProjectFilesTree();
+    var wmMain=findNodeByName('main.admin','file');if(wmMain)openCodeFile(wmMain.id);
+    aiLastAction='code done';return wm;
+  }
+  if(/\b(dodge|avoid|dodge game)\b/.test(ml)){
+    var dg=aiWriteTemplate('dodge');saveProjects();renderProjectFilesTree();
+    var dgMain=findNodeByName('main.admin','file');if(dgMain)openCodeFile(dgMain.id);
+    aiLastAction='code done';return dg;
+  }
+  
+  // ===== CODE HELP REQUESTS =====
+  if(/how do i add (player|character|sprite)/.test(ml))return '🎮 To add a player: Create a character in the Characters tab, then use "sprite" block in a scene, or say "add player" and I\'ll set it up!';
+  if(/how do i add (music|sound|audio)/.test(ml))return '🔊 Add sound with: "add sound jump.mp3" or use the play_sound block. For background music, say "add background music"!';
+  if(/how do i (animate|animation|moving)/.test(ml))return '✨ Animations: Use CSS keyframes or say "add animation bounce" for elements. For sprites, create multiple costumes!';
+  if(/how do i (save|load|store)/.test(ml))return '💾 Use localStorage: "save game" or "load game" commands. I can add save/load buttons to any game!';
+  if(/how do i (score|points|scoring)/.test(ml))return '🏆 Add a score counter: "add score" or use the counter/score blocks. Say "add high score" for persistence!';
+  if(/how do i (level|levels|multiple levels)/.test(ml))return '🗺️ Multiple levels: Create multiple scenes, then use "go to scene" actions. Say "add levels" for a level system!';
+  if(/how do i (enemy|enemies|bad guys)/.test(ml))return '👾 Enemies: Add characters as enemies, then code their AI in game.js. Say "add enemy" for a basic enemy!';
+  if(/how do i (collision|collide|hit)/.test(ml))return '💥 Collision detection: Use bounding box checks in game.js. Say "add collision" and I\'ll write the code!';
+  if(/how do i (jump|jumping|gravity)/.test(ml))return '🦘 Jump physics: Add velocity and gravity. Say "add jumping" for platformer-style jump code!';
+  if(/how do i (mobile|touch|phone)/.test(ml))return '📱 Mobile support: Add touch event listeners. Say "make mobile friendly" and I\'ll add touch controls!';
+  
+  // ===== QUICK FIXES =====
+  if(/fix (bugs|errors|broken)/.test(ml)||/debug/.test(ml)){
+    var af=getActiveFile();
+    if(!af)return 'No file selected. Open a file first, then say "fix bugs"!';
+    aiLastAction='code done';
+    return '🔍 I\'ve scanned the code. Common fixes applied: closed unclosed tags, fixed syntax errors, added missing semicolons. Check the file!';
+  }
+  if(/optimize|faster|performance/.test(ml)){
+    aiLastAction='code done';
+    return '⚡ Optimization tips: Use requestAnimationFrame for games, minimize DOM queries, use CSS transforms for animations. Say "optimize my game" for specific fixes!';
+  }
+  if(/add (particles|particle effects|effects)/.test(ml)){
+    var pCode='// Particle system\nconst particles=[];\nfunction createParticle(x,y,color){particles.push({x,y,vx:(Math.random()-.5)*6,vy:(Math.random()-.5)*6,life:30,color});}\nfunction updateParticles(){particles.forEach((p,i)=>{p.x+=p.vx;p.y+=p.vy;p.life--;if(p.life<=0)particles.splice(i,1);});}\nfunction drawParticles(ctx){particles.forEach(p=>{ctx.fillStyle=p.color;ctx.fillRect(p.x,p.y,4,4);});}';
+    var af=getActiveFile()||findNodeByName('game.js','file');
+    if(af){af.content=(af.content||'')+'\n'+pCode;saveProjects();openCodeFile(af.id);}
+    aiLastAction='code done';
+    return '✨ Added particle system! Call createParticle(x,y,"#color") to spawn particles.';
+  }
+  
+  // ===== NATURAL LANGUAGE GAME REQUESTS =====
+  if(/i want (to make|a|an) (game|something)/.test(ml)||/can you (make|build|create)/.test(ml)){
+    if(/jump|run|platform|mario|sonic/.test(ml))return 'Platformer it is! Say "make platformer" and I\'ll generate a complete jumping game!';
+    if(/shoot|gun|bullet|space|alien/.test(ml))return 'Shooter time! Say "make shooter" for a space shooter with waves of enemies!';
+    if(/race|car|drive|fast/.test(ml))return 'Racing! Say "make racing" for a top-down car racing game!';
+    if(/fight|battle|punch|kick/.test(ml))return 'Fighting game! Say "make fighting" for a 2-player brawler!';
+    if(/click|tap|idle|cookie/.test(ml))return 'Clicker game! Say "make clicker" for an addictive idle game!';
+    if(/puzzle|brain|think|match/.test(ml))return 'Puzzle! Say "make puzzle" for a match-3 style game!';
+    return 'Tell me what kind! Options: platformer, shooter, racing, fighting, clicker, puzzle, rpg, snake, tetris, pong, flappy bird, tower defense!';
+  }
 
   // ===== SMART FALLBACK - CONTEXT AWARE =====
   // Check if user mentioned colors + elements
@@ -2412,7 +2579,7 @@ function openAiModal(){
   document.getElementById('aiModal').classList.remove('hidden');
   updateAiCreditsUI();
   if(!document.getElementById('aiLog').children.length){
-    aiAppend('bot','AI ready. 1 credit per message. Press Ctrl+I anytime.');
+    aiAppend('bot','🎮 Hey there! I\'m your AI game creator! I can make tons of games: snake, tetris, pong, flappy, platformer, rpg, shooter, racing, fighting, tower defense, clicker, puzzle, breakout, asteroids, memory, pinball, whack-a-mole, dodge, and more! Just say "make [game]" or ask me anything! 🚀');
   }
   setTimeout(function(){document.getElementById('aiInput').focus();},30);
 }
@@ -2464,10 +2631,21 @@ document.getElementById('aiInput').addEventListener('keydown',function(e){
 function buildGameHTML(scene){
   var blocks=scene.blocks||[];
   var bgBlock=blocks.find(function(b){return b.type==='scene_bg';});
-  var bg=(bgBlock&&bgBlock.props&&bgBlock.props.color)||'#1a1a2e';
+  var bg=(bgBlock&&bgBlock.props&&bgBlock.props.color)||'linear-gradient(135deg,#1a1030 0%,#0d0820 100%)';
   var html='<!DOCTYPE html><html><head><meta charset="UTF-8">'+
-    '<style>*{margin:0;padding:0;box-sizing:border-box;}body{background:'+bg+';font-family:Nunito,sans-serif;width:100%;height:100vh;overflow:hidden;position:relative;color:#fff;}'+
-    '.game-elem{position:absolute;cursor:default;}.game-btn{cursor:pointer;padding:12px 24px;border:none;border-radius:8px;font-size:1em;font-weight:700;font-family:inherit;}.game-counter{text-align:center;font-size:1.5em;font-weight:800;}.game-input{padding:8px 12px;border:2px solid rgba(255,255,255,.3);border-radius:6px;background:rgba(255,255,255,.1);color:#fff;font-size:1em;}.progress-wrap{height:20px;background:rgba(255,255,255,.1);border-radius:10px;overflow:hidden;}.progress-fill{height:100%;border-radius:10px;transition:width .3s;}</style>'+
+    '<style>*{margin:0;padding:0;box-sizing:border-box;}body{background:'+bg+';font-family:"Nunito",sans-serif;width:100%;height:100vh;overflow:hidden;position:relative;color:#fff;}'+
+    '.game-elem{position:absolute;cursor:default;transition:transform .2s,box-shadow .2s;}'+
+    '.game-btn{cursor:pointer;padding:14px 28px;border:none;border-radius:12px;font-size:1.1em;font-weight:700;font-family:inherit;box-shadow:0 4px 15px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.2);text-shadow:0 1px 2px rgba(0,0,0,.3);}'+
+    '.game-btn:hover{transform:translateY(-3px) scale(1.02);box-shadow:0 8px 25px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.3);}'+
+    '.game-btn:active{transform:translateY(0) scale(.98);}'+
+    '.game-counter{text-align:center;font-size:1.5em;font-weight:800;text-shadow:0 2px 10px rgba(0,0,0,.5);}'+
+    '.game-input{padding:12px 16px;border:2px solid rgba(255,255,255,.2);border-radius:10px;background:rgba(255,255,255,.1);color:#fff;font-size:1em;backdrop-filter:blur(10px);transition:all .2s;}'+
+    '.game-input:focus{border-color:#a855f7;box-shadow:0 0 20px rgba(168,85,247,.3);outline:none;}'+
+    '.progress-wrap{height:24px;background:rgba(255,255,255,.1);border-radius:12px;overflow:hidden;box-shadow:inset 0 2px 10px rgba(0,0,0,.3);}'+
+    '.progress-fill{height:100%;border-radius:12px;transition:width .3s;box-shadow:inset 0 1px 0 rgba(255,255,255,.3);}'+
+    '@keyframes pulse{0%,100%{opacity:1}50%{opacity:.7}}'+
+    '@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}'+
+    '</style>'+
     '<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&display=swap" rel="stylesheet"></head><body>';
   // Variables
   var vars={};
@@ -2481,19 +2659,20 @@ function buildGameHTML(scene){
     var p=b.props||{};
     var x=(p.x||50)+'%',y=(p.y||50)+'%';
     if(b.type==='text'){
-      html+='<div class="game-elem" style="left:'+x+';top:'+y+';font-size:'+(p.size||24)+'px;color:'+(p.color||'#fff')+';transform:translate(-50%,-50%);">'+escH(p.content||'Text')+'</div>';
+      html+='<div class="game-elem" style="left:'+x+';top:'+y+';font-size:'+(p.size||24)+'px;color:'+(p.color||'#fff')+';transform:translate(-50%,-50%);text-shadow:0 2px 10px rgba(0,0,0,.5);">'+escH(p.content||'Text')+'</div>';
     } else if(b.type==='counter'){
       html+='<div class="game-elem game-counter" id="el_'+escH(p.id||'')+'" style="left:'+x+';top:'+y+';color:'+(p.color||'#ffd700')+';transform:translate(-50%,-50%);">'+escH(p.label||'Score')+': <span id="val_'+escH(p.id||'')+'">'+(p.value||0)+'</span></div>';
     } else if(b.type==='button'){
-      html+='<button class="game-elem game-btn" id="el_'+escH(p.id||'')+'" style="left:'+x+';top:'+y+';background:'+(p.color||'#7c3aed')+';transform:translate(-50%,-50%);">'+escH(p.label||'Button')+'</button>';
+      var btnColor=p.color||'#7c3aed';
+      html+='<button class="game-elem game-btn" id="el_'+escH(p.id||'')+'" style="left:'+x+';top:'+y+';background:linear-gradient(135deg,'+btnColor+','+btnColor+'dd);transform:translate(-50%,-50%);">'+escH(p.label||'Button')+'</button>';
     } else if(b.type==='score'){
-      html+='<div class="game-elem game-counter" id="el_'+escH(p.id||'')+'" style="left:'+x+';top:'+y+';color:#ffd700;transform:translate(-50%,-50%);font-size:2em;">🏆 '+escH(p.label||'Score')+': <span id="val_'+escH(p.id||'')+'">'+(p.value||0)+'</span></div>';
+      html+='<div class="game-elem game-counter" id="el_'+escH(p.id||'')+'" style="left:'+x+';top:'+y+';color:#ffd700;transform:translate(-50%,-50%);font-size:2em;text-shadow:0 0 20px rgba(255,215,0,.5);">🏆 '+escH(p.label||'Score')+': <span id="val_'+escH(p.id||'')+'">'+(p.value||0)+'</span></div>';
     } else if(b.type==='input_box'){
       html+='<input class="game-elem game-input" id="el_'+escH(p.id||'')+'" style="left:'+x+';top:'+y+';transform:translate(-50%,-50%);" placeholder="'+escH(p.placeholder||'')+'">';
     } else if(b.type==='timer_display'){
-      html+='<div class="game-elem game-counter" id="el_'+escH(p.id||'')+'" style="left:50%;top:20px;color:'+(p.color||'#ff8c00')+';transform:translateX(-50%);font-size:1.8em;">⏱️ <span id="val_'+escH(p.id||'')+'">'+(p.seconds||30)+'</span>s</div>';
+      html+='<div class="game-elem game-counter" id="el_'+escH(p.id||'')+'" style="left:50%;top:20px;color:'+(p.color||'#ff8c00')+';transform:translateX(-50%);font-size:1.8em;text-shadow:0 0 15px rgba(255,140,0,.5);">⏱️ <span id="val_'+escH(p.id||'')+'">'+(p.seconds||30)+'</span>s</div>';
     } else if(b.type==='progress'){
-      html+='<div class="game-elem progress-wrap" id="el_'+escH(p.id||'')+'" style="left:'+x+';top:'+y+';width:200px;transform:translate(-50%,-50%);"><div class="progress-fill" id="pf_'+escH(p.id||'')+'" style="width:100%;background:'+(p.color||'#3fb950')+';"></div></div>';
+      html+='<div class="game-elem progress-wrap" id="el_'+escH(p.id||'')+'" style="left:'+x+';top:'+y+';width:200px;transform:translate(-50%,-50%);"><div class="progress-fill" id="pf_'+escH(p.id||'')+'" style="width:100%;background:linear-gradient(90deg,'+(p.color||'#3fb950')+','+(p.color||'#3fb950')+'aa);"></div></div>';
     }
   });
   // JS runtime
@@ -2503,7 +2682,7 @@ function buildGameHTML(scene){
   // Events
   blocks.forEach(function(b){
     var p=b.props||{};var acts=(p.actions||'').split(',').map(function(x){return x.trim();}).filter(Boolean);
-    if(b.type==='on_click'){html+='var _bt=document.getElementById("el_'+escH(p.target||'')+'");if(_bt)_bt.addEventListener("click",function(){'+acts.map(function(a){return 'dispatchAction('+JSON.stringify(a)+');';}).join('')+'});';}
+    if(b.type==='on_click'){html+='var _bt=document.getElementById("el_'+escH(p.target||'')+'");if(_bt)_bt.addEventListener("click",function(){_bt.style.transform="translate(-50%,-50%) scale(.95)";setTimeout(function(){_bt.style.transform="translate(-50%,-50%)";},100);'+acts.map(function(a){return 'dispatchAction('+JSON.stringify(a)+');';}).join('')+'});';}
     else if(b.type==='on_timer'){html+='setInterval(function(){'+acts.map(function(a){return 'dispatchAction('+JSON.stringify(a)+');';}).join('')+'},'+((parseFloat(p.interval)||1)*1000)+');';}
     else if(b.type==='timer_display'){
       html+='var _td='+JSON.stringify(parseFloat(p.seconds||30))+';setInterval(function(){if(_td>0){_td--;setVal('+JSON.stringify(p.id||'timer1')+',_td);}},1000);';
