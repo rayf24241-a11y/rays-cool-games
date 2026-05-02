@@ -262,16 +262,37 @@ input,textarea,select{font-family:'Nunito',sans-serif;}
 .px-add-costume:hover{color:var(--accent3);}
 
 /* === GAME PREVIEW === */
-#previewModal{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:600;display:flex;flex-direction:column;align-items:center;justify-content:center;}
-#previewModal .preview-header{display:flex;align-items:center;justify-content:space-between;width:800px;max-width:95vw;margin-bottom:12px;}
+#previewModal{position:fixed;inset:0;background:#000;z-index:600;display:flex;flex-direction:column;}
+#previewModal .preview-header{flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:12px 20px;background:var(--bg2);border-bottom:1px solid var(--border);}
 #previewModal h3{font-family:'Fredoka One',cursive;color:var(--accent3);font-size:1.3em;}
 .preview-close{padding:7px 16px;background:var(--bg2);border:1px solid var(--border2);border-radius:6px;color:var(--text);font-size:.85em;cursor:pointer;}
-#previewFrame{width:800px;max-width:95vw;height:500px;background:#1a1a2e;border:1px solid var(--border2);border-radius:12px;overflow:hidden;position:relative;}
+.exit-test-btn{padding:7px 16px;background:#e74c3c;border:1px solid #c0392b;border-radius:6px;color:#fff;font-size:.85em;cursor:pointer;font-weight:700;transition:all .15s;}
+.exit-test-btn:hover{background:#c0392b;transform:translateY(-1px);}
+#previewFrame{flex:1;width:100%;height:100%;background:#1a1a2e;overflow:hidden;position:relative;}
+#previewFrame iframe{width:100%;height:100%;border:none;}
 
 .ai-credit{font-size:.78em;color:var(--yellow);font-weight:800;}
 #aiModal{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:980;display:flex;align-items:center;justify-content:center;}
-.ai-box{width:560px;max-width:96vw;height:70vh;max-height:700px;background:var(--bg2);border:1px solid var(--border2);border-radius:14px;display:flex;flex-direction:column;overflow:hidden;}
+.ai-box{width:600px;max-width:96vw;height:70vh;max-height:700px;background:var(--bg2);border:1px solid var(--border2);border-radius:14px;display:flex;flex-direction:column;overflow:hidden;}
 .ai-head{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border-bottom:1px solid var(--border);}
+
+/* AI Character - Pixelated block with hammer */
+.ai-character-wrap{display:flex;align-items:center;gap:12px;}
+.ai-pixel-character{width:48px;height:48px;position:relative;image-rendering:pixelated;animation:hop 0.6s ease-in-out infinite;flex-shrink:0;}
+@keyframes hop{0%,100%{transform:translateY(0);}50%{transform:translateY(-8px);}}
+.ai-pixel-body{width:40px;height:40px;background:linear-gradient(135deg,#a855f7,#7c3aed);border:3px solid #fff;border-radius:4px;position:absolute;left:4px;top:4px;box-shadow:0 4px 12px rgba(124,58,237,.4);}
+.ai-pixel-face{position:absolute;left:8px;top:10px;width:32px;height:20px;}
+.ai-pixel-eye{width:6px;height:6px;background:#fff;border-radius:0;position:absolute;top:0;}
+.ai-pixel-eye.left{left:4px;}
+.ai-pixel-eye.right{right:4px;}
+.ai-pixel-smile{width:20px;height:6px;border-bottom:3px solid #fff;border-left:3px solid transparent;border-right:3px solid transparent;border-radius:0 0 10px 10px;position:absolute;bottom:2px;left:6px;}
+.ai-pixel-hammer{position:absolute;right:-8px;top:8px;width:24px;height:32px;animation:hammerSwing 0.6s ease-in-out infinite;transform-origin:4px 28px;}
+@keyframes hammerSwing{0%,100%{transform:rotate(-10deg);}50%{transform:rotate(15deg);}}
+.ai-hammer-handle{width:4px;height:24px;background:#8b4513;position:absolute;bottom:0;left:10px;border-radius:1px;}
+.ai-hammer-head{width:18px;height:14px;background:linear-gradient(135deg,#c0c0c0,#808080);position:absolute;top:0;left:3px;border-radius:2px;border:1px solid #606060;}
+.ai-hammer-face{width:12px;height:8px;background:#a0a0a0;position:absolute;top:3px;left:6px;border-radius:1px;}
+.ai-character-title{font-weight:800;font-size:1em;color:var(--text);}
+.ai-character-title span{font-size:.75em;color:var(--accent3);display:block;font-weight:600;}
 .ai-log{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px;background:var(--bg);}
 .ai-msg{padding:8px 10px;border-radius:8px;font-size:.84em;line-height:1.45;max-width:90%;}
 .ai-msg.user{align-self:flex-end;background:rgba(88,166,255,.18);border:1px solid rgba(88,166,255,.35);}
@@ -559,7 +580,7 @@ document.addEventListener('DOMContentLoaded', function() {
 <div id="previewModal" class="hidden">
   <div class="preview-header">
     <h3>▶ Game Preview</h3>
-    <button class="preview-close" id="closePreviewBtn">✕ Stop</button>
+    <button class="exit-test-btn" id="closePreviewBtn">✕ Exit Test</button>
   </div>
   <div id="previewFrame"></div>
 </div>
@@ -634,7 +655,23 @@ document.addEventListener('DOMContentLoaded', function() {
 <div id="aiModal" class="hidden">
   <div class="ai-box">
     <div class="ai-head">
-      <div style="font-weight:800;">🤖 Creator AI <span id="aiCredits" class="ai-credit">50 credits</span> <button id="refreshAiCreditsBtn" style="margin-left:6px;padding:2px 8px;border:1px solid var(--border2);background:var(--bg3);color:var(--muted);border-radius:6px;font-size:.72em;cursor:pointer;">refresh</button></div>
+      <div class="ai-character-wrap">
+        <div class="ai-pixel-character">
+          <div class="ai-pixel-body">
+            <div class="ai-pixel-face">
+              <div class="ai-pixel-eye left"></div>
+              <div class="ai-pixel-eye right"></div>
+              <div class="ai-pixel-smile"></div>
+            </div>
+          </div>
+          <div class="ai-pixel-hammer">
+            <div class="ai-hammer-handle"></div>
+            <div class="ai-hammer-head"></div>
+            <div class="ai-hammer-face"></div>
+          </div>
+        </div>
+        <div class="ai-character-title">Creator AI <span id="aiCredits" class="ai-credit">50 credits</span> <button id="refreshAiCreditsBtn" style="margin-left:6px;padding:2px 8px;border:1px solid var(--border2);background:var(--bg3);color:var(--muted);border-radius:6px;font-size:.72em;cursor:pointer;">refresh</button></div>
+      </div>
       <button class="preview-close" id="closeAiBtn">Close</button>
     </div>
     <div id="aiLog" class="ai-log"></div>
