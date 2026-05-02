@@ -2616,17 +2616,19 @@ function buildSystemPrompt(){
   var activeFile=getActiveFile();
   var activeContent='';
   if(activeFile)activeContent='\n\nACTIVE FILE ('+activeFile.name+'):\n```\n'+(activeFile.content||'').slice(0,2000)+'\n```';
-  return 'You are Creator AI for "RAYS CREAT3R". You DIRECTLY edit the user\'s project files.\n\n'
+  return 'You are Creator AI for "RAYS CREAT3R". You DIRECTLY edit project files. NEVER paste raw code. ALWAYS use FILE blocks.\n\n'
+    +'FILE BLOCK FORMAT (you MUST use this exact format for ALL code):\n'
+    +'<<<FILE:game.html>>>\n<!DOCTYPE html>\n<html>...</html>\n<<<END_FILE>>>\n\n'
+    +'EXAMPLE — if user says "make a red button page":\n'
+    +'Here\'s your button page!\n\n<<<FILE:main.admin>>>\n<button style="background:red;color:white;padding:20px;font-size:24px;">Click Me!</button>\n<<<END_FILE>>>\n\n'
     +'RULES:\n'
-    +'- When the user asks you to create, edit, or build something, write the code DIRECTLY into their files using FILE blocks.\n'
-    +'- To write/overwrite a file, use this exact format:\n'
-    +'<<<FILE:filename.ext>>>\ncode content here\n<<<END_FILE>>>\n'
-    +'- You can write multiple files in one response.\n'
-    +'- For .admin or .html files, write full HTML content.\n'
-    +'- For .css files, write CSS. For .js files, write JavaScript.\n'
-    +'- Keep explanations SHORT (1-2 sentences). Let the code speak.\n'
-    +'- If the user just asks a question (not asking to build/edit), answer concisely WITHOUT file blocks.\n'
-    +'- ALWAYS use FILE blocks when creating or editing code. Never just paste code without them.\n\n'
+    +'1. ALWAYS wrap code in <<<FILE:name>>> and <<<END_FILE>>> tags. No exceptions.\n'
+    +'2. Never use markdown code blocks (```). Only use FILE blocks.\n'
+    +'3. Write complete file content (not snippets).\n'
+    +'4. Use .admin extension for HTML game files. Use .css for styles. Use .js for scripts.\n'
+    +'5. Keep explanations to 1-2 sentences BEFORE the file blocks.\n'
+    +'6. For questions with no code needed, just answer briefly.\n'
+    +'7. Make games colorful, fun, and fully playable in a single .admin file.\n\n'
     +'PROJECT: '+(currentProject?currentProject.name:'None')+'\n'
     +'FILES: '+(fileList||'none')+activeContent;
 }
@@ -2634,13 +2636,13 @@ function buildSystemPrompt(){
 // Parse FILE blocks from AI response
 function parseAiFileActions(response){
   var actions=[];
-  var regex=/<<<FILE:([^>]+)>>>\n([\s\S]*?)<<<END_FILE>>>/g;
+  var regex=/<<<\s*FILE\s*:\s*([^>]+?)\s*>>>\s*\n?([\s\S]*?)<<<\s*END_FILE\s*>>>/g;
   var match;
   while((match=regex.exec(response))!==null){
     actions.push({filename:match[1].trim(),content:match[2]});
   }
   // Remove file blocks from display text
-  var displayText=response.replace(/<<<FILE:[^>]+>>>[\s\S]*?<<<END_FILE>>>/g,'').trim();
+  var displayText=response.replace(/<<<\s*FILE\s*:\s*[^>]+?\s*>>>\s*\n?[\s\S]*?<<<\s*END_FILE\s*>>>/g,'').trim();
   return {actions:actions,displayText:displayText};
 }
 
