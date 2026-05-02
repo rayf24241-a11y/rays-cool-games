@@ -2642,14 +2642,20 @@ document.getElementById('sendAiBtn').addEventListener('click',async function(){
   // Try ChatGPT API first (via serverless /api/chat route)
   if(aiUseApi){
     showAiStatus('Consulting GPT...');
-    var apiResponse = await callChatGPT(text, aiMemory);
-    if(apiResponse){
-      aiMemory.push({role: 'user', content: text});
-      aiMemory.push({role: 'assistant', content: apiResponse});
-      aiAppend('bot',apiResponse);
-      hideAiStatus();
-      aiWorking=false;
-      return;
+    try{
+      var apiResponse = await callChatGPT(text, aiMemory);
+      if(apiResponse){
+        aiMemory.push({role: 'user', content: text});
+        aiMemory.push({role: 'assistant', content: apiResponse});
+        aiAppend('bot',apiResponse);
+        hideAiStatus();
+        aiWorking=false;
+        return;
+      }else{
+        aiAppend('bot','[API returned null — falling back to local AI]');
+      }
+    }catch(apiErr){
+      aiAppend('bot','[API Error: '+apiErr.message+' — falling back to local AI]');
     }
   }
   // Fallback to local AI
