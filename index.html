@@ -251,9 +251,23 @@ function doSetup(){
   err.classList.add("hidden");
   if(!n){err.textContent="Pick a username first.";err.classList.remove("hidden");document.getElementById("setupName").focus();return;}
   if(!pw||pw.length<3){err.textContent="Password needs at least 3 characters.";err.classList.remove("hidden");document.getElementById("setupPwd").focus();return;}
-  RC.setUser(n,pw);
+
+  // Check username availability first
+  if(RC.isUsernameTaken(n)){
+    err.textContent="That username is already taken. Try a different one.";
+    err.classList.remove("hidden");
+    document.getElementById("setupName").focus();
+    return;
+  }
+
+  var result=RC.setUser(n,pw);
+  if(!result.ok){
+    err.textContent=result.msg;
+    err.classList.remove("hidden");
+    return;
+  }
   RC.startSession();
-  showHome(RC.getUser(),false);
+  showHome(result.user,false);
 }
 document.getElementById("setupBtn").addEventListener("click",doSetup);
 document.getElementById("setupName").addEventListener("keydown",function(e){if(e.key==="Enter")document.getElementById("setupPwd").focus();});
