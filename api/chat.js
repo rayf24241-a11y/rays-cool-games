@@ -13,7 +13,7 @@ module.exports = function handler(req, res) {
   const { messages } = req.body;
 
   const postData = JSON.stringify({
-    model: 'llama-3.3-70b-versatile',
+    model: 'llama-3.1-8b-instant',
     messages: messages,
     max_tokens: 4000,
     temperature: 0.7
