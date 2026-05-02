@@ -2604,10 +2604,72 @@ document.addEventListener('keydown',function(e){
 var aiModel = localStorage.getItem('rc_ai_model') || 'gpt-4o';
 var aiUseApi = aiModel !== 'local';
 
+// Build system prompt with current project file context
+function buildSystemPrompt(){
+  var files=[];
+  function collectAll(node){
+    if(node.type==='file')files.push(node);
+    if(node.children)node.children.forEach(collectAll);
+  }
+  if(currentProject&&currentProject.fileRoot)collectAll(currentProject.fileRoot);
+  var fileList=files.map(function(f){return f.name+' ('+((f.content||'').length)+' chars)';}).join(', ');
+  var activeFile=getActiveFile();
+  var activeContent='';
+  if(activeFile)activeContent='\n\nACTIVE FILE ('+activeFile.name+'):\n```\n'+(activeFile.content||'').slice(0,2000)+'\n```';
+  return 'You are Creator AI for "RAYS CREAT3R". You DIRECTLY edit the user\'s project files.\n\n'
+    +'RULES:\n'
+    +'- When the user asks you to create, edit, or build something, write the code DIRECTLY into their files using FILE blocks.\n'
+    +'- To write/overwrite a file, use this exact format:\n'
+    +'<<<FILE:filename.ext>>>\ncode content here\n<<<END_FILE>>>\n'
+    +'- You can write multiple files in one response.\n'
+    +'- For .admin or .html files, write full HTML content.\n'
+    +'- For .css files, write CSS. For .js files, write JavaScript.\n'
+    +'- Keep explanations SHORT (1-2 sentences). Let the code speak.\n'
+    +'- If the user just asks a question (not asking to build/edit), answer concisely WITHOUT file blocks.\n'
+    +'- ALWAYS use FILE blocks when creating or editing code. Never just paste code without them.\n\n'
+    +'PROJECT: '+(currentProject?currentProject.name:'None')+'\n'
+    +'FILES: '+(fileList||'none')+activeContent;
+}
+
+// Parse FILE blocks from AI response
+function parseAiFileActions(response){
+  var actions=[];
+  var regex=/<<<FILE:([^>]+)>>>\n([\s\S]*?)<<<END_FILE>>>/g;
+  var match;
+  while((match=regex.exec(response))!==null){
+    actions.push({filename:match[1].trim(),content:match[2]});
+  }
+  // Remove file blocks from display text
+  var displayText=response.replace(/<<<FILE:[^>]+>>>[\s\S]*?<<<END_FILE>>>/g,'').trim();
+  return {actions:actions,displayText:displayText};
+}
+
+// Apply file actions to the project
+function applyAiFileActions(actions){
+  var results=[];
+  actions.forEach(function(a){
+    var made=createFileByPath(a.filename,a.content);
+    if(made.ok){
+      made.file.content=a.content;
+      results.push((made.updated?'Updated':'Created')+' '+a.filename);
+    }else{
+      results.push('Failed: '+a.filename+' — '+made.msg);
+    }
+  });
+  if(results.length){
+    saveProjects();renderProjectFilesTree();
+    if(actions.length>0){
+      var lastFile=createFileByPath(actions[actions.length-1].filename,'');
+      if(lastFile.ok)openCodeFile(lastFile.file.id);
+    }
+  }
+  return results;
+}
+
 // ChatGPT API call function (uses /api/chat serverless route)
 async function callChatGPT(userMessage, conversationHistory){
   if(aiModel === 'local') return null;
-  var systemPrompt = 'You are Creator AI for "RAYS CREAT3R", a game creation tool. Keep responses SHORT and concise (2-4 sentences max) unless the user explicitly asks for full code. You can help with game dev, code, and creative ideas. When asked to generate a full game, provide complete runnable HTML/CSS/JS code. Use emoji sparingly. Current project: ' + (currentProject ? currentProject.name : 'No project loaded') + '. Active file: ' + aiContextFile;
+  var systemPrompt = buildSystemPrompt();
   var messages = [{role: 'system', content: systemPrompt}];
   conversationHistory.slice(-10).forEach(function(m){messages.push(m);});
   messages.push({role: 'user', content: userMessage});
@@ -2640,15 +2702,24 @@ document.getElementById('sendAiBtn').addEventListener('click',async function(){
   aiCredits-=1; currentProject.aiCredits=aiCredits; saveProjects(); updateAiCreditsUI();
   aiAppend('user',text);
   inp.value='';
-  // Try ChatGPT API first (via serverless /api/chat route)
+  // Try API first (via serverless /api/chat route)
   if(aiUseApi){
-    showAiStatus('Consulting GPT...');
+    showAiStatus('Writing code...');
     try{
       var apiResponse = await callChatGPT(text, aiMemory);
       if(apiResponse){
         aiMemory.push({role: 'user', content: text});
         aiMemory.push({role: 'assistant', content: apiResponse});
-        aiAppend('bot',apiResponse);
+        // Parse and apply file actions
+        var parsed = parseAiFileActions(apiResponse);
+        if(parsed.actions.length>0){
+          var results = applyAiFileActions(parsed.actions);
+          var summary = '✅ ' + results.join('\n✅ ');
+          if(parsed.displayText) summary = parsed.displayText + '\n\n' + summary;
+          aiAppend('bot', summary);
+        }else{
+          aiAppend('bot', apiResponse);
+        }
         hideAiStatus();
         aiWorking=false;
         return;
