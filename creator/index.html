@@ -2611,22 +2611,23 @@ async function callChatGPT(userMessage, conversationHistory){
   var messages = [{role: 'system', content: systemPrompt}];
   conversationHistory.slice(-10).forEach(function(m){messages.push(m);});
   messages.push({role: 'user', content: userMessage});
-  try{
-    var response = await fetch('/api/chat', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({model: aiModel, messages: messages})
-    });
-    if(!response.ok){
-      var err = await response.json();
-      throw new Error(err.error || 'API error');
-    }
-    var data = await response.json();
-    return data.choices[0].message.content;
-  }catch(e){
-    console.error('ChatGPT API error:', e);
-    return null;
+  var response = await fetch('/api/chat', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({model: aiModel, messages: messages})
+  });
+  var responseText = await response.text();
+  var data;
+  try{ data = JSON.parse(responseText); }catch(e){
+    throw new Error('Server returned non-JSON (status ' + response.status + '): ' + responseText.substring(0,200));
   }
+  if(!response.ok){
+    throw new Error(data.error || 'API error (status ' + response.status + ')');
+  }
+  if(!data.choices || !data.choices[0]){
+    throw new Error('Unexpected API response: ' + JSON.stringify(data).substring(0,200));
+  }
+  return data.choices[0].message.content;
 }
 
 document.getElementById('sendAiBtn').addEventListener('click',async function(){
