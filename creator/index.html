@@ -2660,9 +2660,11 @@ function applyAiFileActions(actions){
   });
   if(results.length){
     saveProjects();renderProjectFilesTree();
+    // Open the last edited file
     if(actions.length>0){
-      var lastFile=createFileByPath(actions[actions.length-1].filename,'');
-      if(lastFile.ok)openCodeFile(lastFile.file.id);
+      var lastName=actions[actions.length-1].filename.split('/').pop();
+      var lastNode=findNodeByName(lastName,'file');
+      if(lastNode)openCodeFile(lastNode.id);
     }
   }
   return results;
